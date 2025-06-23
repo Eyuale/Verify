@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum VoteType {
+  ACCURATE
+  INACCURATE
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  role      String   // e.g., 'reviewer', 'buyer', 'seller'
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reviews   Review[]
+  comments  Comment[]
+  votes     Vote[]
+  products  Product[]
+  ratings   Rating[]
+}
+
+model Product {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  category      String
+  description   String?
+  sellerId      String   @db.ObjectId // Changed to String for ObjectId
+  seller        User     @relation(fields: [sellerId], references: [id])
+  link          String
+  status        String   @default("pending") // 'pending', 'approved', 'rejected'
+  price         Float?
+  imageUrl      String?
+  averageRating Float    @default(0.0)
+  ratingCount   Int      @default(0)
+  reviews       Review[]
+  ratings       Rating[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([name])
+  @@index([category])
+}
+
+model Review {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String   @db.ObjectId // Changed to String for ObjectId
+  product     Product  @relation(fields: [productId], references: [id])
+  reviewerId  String   @db.ObjectId // Changed to String for ObjectId
+  reviewer    User     @relation(fields: [reviewerId], references: [id])
+  videoUrl    String
+  status      String   @default("pending") // 'pending', 'approved', 'rejected'
+  date        DateTime @default(now())
+  comments    Comment[]
+  votes       Vote[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  reviewId  String   @db.ObjectId // Changed to String for ObjectId
+  review    Review   @relation(fields: [reviewId], references: [id])
+  userId    String   @db.ObjectId // Changed to String for ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  text      String
+  timestamp DateTime @default(now())
+}
+
+model Vote {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  reviewId  String   @db.ObjectId // Changed to String for ObjectId
+  review    Review   @relation(fields: [reviewId], references: [id])
+  userId    String   @db.ObjectId // Changed to String for ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  voteType  VoteType
+  createdAt DateTime @default(now())
+
+  @@unique([reviewId, userId])
+}
+
+model Rating {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @db.ObjectId // Changed to String for ObjectId
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String   @db.ObjectId // Changed to String for ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  stars     Int      // 1 to 5
+  comment   String?
+  createdAt DateTime @default(now())
+}
