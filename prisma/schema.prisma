@@ -19,87 +19,165 @@ enum VoteType {
   INACCURATE
 }
 
+enum UserRole {
+  BUYER
+  REVIEWER
+  SELLER
+}
+
+enum ProductStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String   @unique
-  role      String   // e.g., 'reviewer', 'buyer', 'seller'
-  points    Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reviews   Review[]
-  comments  Comment[]
-  votes     Vote[]
-  products  Product[]
-  ratings   Rating[]
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId       String    @unique
+  name          String
+  email         String    @unique
+  role          UserRole  @default(BUYER)
+  points        Int       @default(0)
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  reviews       Review[]
+  comments      Comment[]
+  votes         Vote[]
+  products      Product[]
+  ratings       Rating[]
+  shorts        Short[]
+
+  @@map("users")
 }
 
 model Product {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  category      String
-  description   String?
-  sellerId      String   @db.ObjectId // Changed to String for ObjectId
-  seller        User     @relation(fields: [sellerId], references: [id])
-  link          String
-  status        String   @default("pending") // 'pending', 'approved', 'rejected'
-  price         Float?
-  imageUrl      String?
-  averageRating Float    @default(0.0)
-  ratingCount   Int      @default(0)
-  reviews       Review[]
-  ratings       Rating[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  category        String
+  description     String?
+  sellerId        String          @db.ObjectId
+  seller          User            @relation(fields: [sellerId], references: [id])
+  purchaseLink    String
+  status          ProductStatus   @default(PENDING)
+  price           String
+  imageUrl        String?
+  videoUrl        String?
+  averageRating   Float           @default(0.0)
+  reviewCount     Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  reviews         Review[]
+  ratings         Rating[]
+  comments        Comment[]
+  shorts          Short[]
+  featureRatings  FeatureRating[]
 
-  @@index([name])
-  @@index([category])
+  @@map("products")
+}
+
+model FeatureRating {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  productId     String    @db.ObjectId
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  featureName   String    // e.g., "Camera Quality", "Battery Life", "Performance"
+  averageRating Float     @default(0.0)
+  reviewCount   Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([productId, featureName])
+  @@map("feature_ratings")
 }
 
 model Review {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId   String   @db.ObjectId // Changed to String for ObjectId
-  product     Product  @relation(fields: [productId], references: [id])
-  reviewerId  String   @db.ObjectId // Changed to String for ObjectId
-  reviewer    User     @relation(fields: [reviewerId], references: [id])
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String        @db.ObjectId
+  product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reviewerId  String        @db.ObjectId
+  reviewer    User          @relation(fields: [reviewerId], references: [id])
   videoUrl    String
-  status      String   @default("pending") // 'pending', 'approved', 'rejected'
-  date        DateTime @default(now())
+  title       String
+  content     String
+  rating      Int           // Overall rating 1-5
+  status      ReviewStatus  @default(PENDING)
+  duration    String?       // e.g., "5:30"
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relations
   comments    Comment[]
   votes       Vote[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+model Short {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String    @db.ObjectId
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reviewerId  String    @db.ObjectId
+  reviewer    User      @relation(fields: [reviewerId], references: [id])
+  videoUrl    String
+  title       String
+  content     String
+  duration    String    // e.g., "0:58"
+  likes       Int       @default(0)
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("shorts")
 }
 
 model Comment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  reviewId  String   @db.ObjectId // Changed to String for ObjectId
-  review    Review   @relation(fields: [reviewId], references: [id])
-  userId    String   @db.ObjectId // Changed to String for ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  text      String
-  timestamp DateTime @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String?   @db.ObjectId
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reviewId    String?   @db.ObjectId
+  review      Review?   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  text        String
+  rating      Int?      // Optional rating for product comments
+  createdAt   DateTime  @default(now())
+
+  @@map("comments")
 }
 
 model Vote {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  reviewId  String   @db.ObjectId // Changed to String for ObjectId
-  review    Review   @relation(fields: [reviewId], references: [id])
-  userId    String   @db.ObjectId // Changed to String for ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  voteType  VoteType
-  createdAt DateTime @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  reviewId    String    @db.ObjectId
+  review      Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  voteType    VoteType
+  createdAt   DateTime  @default(now())
 
   @@unique([reviewId, userId])
+  @@map("votes")
 }
 
 model Rating {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  productId String   @db.ObjectId // Changed to String for ObjectId
-  product   Product  @relation(fields: [productId], references: [id])
-  userId    String   @db.ObjectId // Changed to String for ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  stars     Int      // 1 to 5
-  comment   String?
-  createdAt DateTime @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String    @db.ObjectId
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  stars       Int       // 1 to 5
+  comment     String?
+  createdAt   DateTime  @default(now())
+
+  @@unique([productId, userId])
+  @@map("ratings")
 }
