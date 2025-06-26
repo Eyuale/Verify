@@ -1,16 +1,7 @@
-import { Schema, models, model } from "mongoose";
+import { Schema, models, model, Document } from "mongoose";
+import { T_PRODUCT_DOCUMENT } from "@/components/product/data/data";
 
-const productSchema = new Schema({
-  //   email: {
-  //     required: true,
-  //     type: String,
-  //     unique: true,
-  //   },
-  //   username: {
-  //     required: true,
-  //     type: String,
-  //     unique: true,
-  //   },
+const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
   product_name: {
     required: true,
     type: String,
@@ -33,4 +24,5 @@ const productSchema = new Schema({
   },
 });
 
-export const Product = models.Product || model("Product", productSchema);
+export const Product =
+  models.Product || model<T_PRODUCT_DOCUMENT>("Product", productSchema);
