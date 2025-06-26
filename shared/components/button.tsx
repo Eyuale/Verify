@@ -5,18 +5,18 @@ type T_BUTTON = {
   onClick?: () => void;
   label: string;
   icon?: React.ReactNode;
+  type: "button" | "submit" | "reset";
 };
 
-const Button = ({ className, onClick, label, icon }: T_BUTTON) => {
+const Button = ({ className, onClick, label, icon, type }: T_BUTTON) => {
   return (
     <button
-      className={`p-1 px-4 flex items-center justify-center h-8 cursor-pointer rounded-lg outline-none ${className} border`}
+      className={`p-1 px-4 flex items-center justify-center h-8 cursor-pointer rounded-lg outline-none ${className}`}
       onClick={onClick}
+      type={type}
     >
-      <span className="text-xs tracking-tight">
-        {icon}
-        {label}
-      </span>
+      <span>{icon}</span>
+      <span className="text-sm tracking-tight">{label}</span>
     </button>
   );
 };

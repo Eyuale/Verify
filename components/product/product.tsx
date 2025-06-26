@@ -1,0 +1,39 @@
+import React from "react";
+
+import { type T_PRODUCT } from "./data/data";
+
+const ProductCard = ({
+  id,
+  product_name,
+  description,
+  imageUrl,
+  price,
+  company_name,
+}: T_PRODUCT) => {
+  return (
+    <div className="w-full min-h-[300px] bg-black/5 dark:bg-white/5 rounded-lg p-1 flex flex-col justify-between">
+      {/* img */}
+      <div className="w-full flex items-center justify-center h-56 rounded-md overflow-hidden bg-white">
+        <img
+          src={imageUrl}
+          alt="iPhone 16 Pro Max"
+          className="object-contain"
+        />
+      </div>
+
+      {/* content area */}
+      <div className="w-full p-2 pb-4 relative">
+        <span className="py-8 opacity-70 text-sm tracking-tight">
+          {company_name}
+        </span>
+        <h1 className="tracking-tight flex w-full items-center justify-between">
+          <span>{product_name}</span>{" "}
+          <span className="font-medium ">${price}</span>
+        </h1>
+        <p className="text-xs opacity-60">{description}</p>
+      </div>
+    </div>
+  );
+};
+
+export default ProductCard;
