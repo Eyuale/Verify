@@ -82,3 +82,43 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest){
+  try {
+    // You can keep the authentication if you want to restrict GET access
+    // const { userId } = getAuth(req);
+    // if (!userId) {
+    //   return NextResponse.json(
+    //     { success: false, error: "Unauthorized" },
+    //     { status: 401 }
+    //   );
+    // }
+
+    await connectToDatabase();
+
+    // Get the URL object from the request
+    const url = new URL(req.url);
+
+    // Get the product_name from the query parameters
+    const product_name = url.searchParams.get("product_name");
+
+    let searchResult;
+    if (product_name) {
+      // If product_name is provided, search by it (case-insensitive example)
+      searchResult = await Product.find({ product_name: { $regex: product_name, $options: 'i' } });
+    } else {
+      // If no product_name is provided, return all products (or a paginated list)
+      searchResult = await Product.find({});
+    }
+
+
+    if(!searchResult || searchResult.length === 0){ // Check for empty array
+      return NextResponse.json({ message: "No product found" });
+    }
+
+    return NextResponse.json({ message: "Products found", searchResult });
+  } catch (error) {
+    console.error("Error fetching products:", error); // Use console.error for errors
+    return NextResponse.json({ message: "Server Error" }, { status: 500});
+  }
+}
