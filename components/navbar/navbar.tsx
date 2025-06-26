@@ -8,7 +8,7 @@ export default function Navbar() {
   return (
     <nav className="w-full h-16 flex items-center justify-between fixed top-0 left-0 px-8">
       <h3 className="font-medium tracking-tight flex items-center gap-0.5">
-        Verify
+        <Link href={"/"}>Verify</Link>
         <BadgeCheck
           size={20}
           className="bg-blue-50 dark:bg-transparent text-blue-600 overflow-hidden rounded-full"
