@@ -41,10 +41,12 @@ export default async function ProductDetailsPage({
         </Link>
         <div className="pt-12 grid grid-cols-3">
           <div className="w-full p-4">
-            <img
-              src={product.imageUrl}
-              alt={product.product_name}
-              style={{ maxWidth: "300px" }}
+            <video
+              src={`https://verify-product-review.s3.us-east-1.amazonaws.com/${product.videoUrl}`}
+              controls
+              className="w-full h-auto rounded-lg shadow-lg"
+              poster={product.imageUrl} // Use imageUrl as poster for the video
+              preload="metadata"
             />
           </div>
           <div className="w-full space-y-2 col-span-2 pt-4 px-8">
