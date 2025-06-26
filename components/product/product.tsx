@@ -11,7 +11,7 @@ const ProductCard = ({
   company_name,
 }: T_PRODUCT) => {
   return (
-    <div className="w-full min-h-[300px] bg-black/5 dark:bg-white/5 rounded-lg p-2 flex flex-col">
+    <div className="w-full min-h-[300px] bg-black/5 dark:bg-white/5 rounded-lg p-1.5 flex flex-col">
       {/* img */}
       <div className="w-full flex items-center justify-center h-56 rounded-md overflow-hidden bg-white">
         <img
