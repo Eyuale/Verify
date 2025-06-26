@@ -1,4 +1,4 @@
-import { Schema, models, model, Document } from "mongoose";
+import { Schema, models, model } from "mongoose";
 import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data";
 
 const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
