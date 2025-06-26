@@ -7,7 +7,7 @@ import React from "react";
 
 export default function Navbar() {
   return (
-    <nav className="w-full h-16 flex items-center justify-between fixed top-0 left-0 px-8">
+    <nav className="w-full h-12 flex items-center justify-between fixed top-0 left-0 px-8 bg-white dark:bg-[#151314] border-b border-black/10 dark:border-white/10 z-50">
       <h3 className="font-medium tracking-tight flex items-center gap-0.5">
         <Link href={"/"}>Verify</Link>
         <BadgeCheck
@@ -17,12 +17,12 @@ export default function Navbar() {
       </h3>
       <div className="flex h-full items-center gap-4">
         <Link href="/products/add">
-            <Button
-              type="button"
-              label="Review a product"
-              className="bg-blue-600 dark:bg-white/5 text-white/90"
-            />
-          </Link>
+          <Button
+            type="button"
+            label="Review a product"
+            className="bg-blue-600 dark:bg-white/10 text-white/90"
+          />
+        </Link>
         <SignedOut>
           <Link href="/sign-in">
             <Button

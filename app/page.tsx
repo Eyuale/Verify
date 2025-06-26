@@ -1,7 +1,7 @@
 import { connectToDatabase } from "@/utils/db";
 import { Product } from "@/models/productSchema";
 import ProductCard from "@/components/product/product";
-import { T_PRODUCT_DOCUMENT } from "@/components/product/data/data";
+import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data";
 import { Suspense } from "react";
 import Link from "next/link";
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { type T_PRODUCT } from "./data/data";
+import { type T_PRODUCT } from "./types/data";
 
 const ProductCard = ({
   id,
@@ -11,13 +11,13 @@ const ProductCard = ({
   company_name,
 }: T_PRODUCT) => {
   return (
-    <div className="w-full min-h-[300px] bg-black/5 dark:bg-white/5 rounded-lg p-1 flex flex-col justify-between">
+    <div className="w-full min-h-[300px] bg-black/5 dark:bg-white/5 rounded-lg p-2 flex flex-col">
       {/* img */}
       <div className="w-full flex items-center justify-center h-56 rounded-md overflow-hidden bg-white">
         <img
           src={imageUrl}
           alt="iPhone 16 Pro Max"
-          className="object-contain w-full h-full"
+          className="object-cover w-full h-full"
         />
       </div>
 
