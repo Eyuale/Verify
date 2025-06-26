@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.23.0",
     "@gsap/react": "^2.1.2",
     "@prisma/client": "^6.10.1",
     "lucide-react": "^0.522.0",

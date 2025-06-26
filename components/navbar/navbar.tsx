@@ -1,5 +1,6 @@
 import Button from "@/shared/components/button";
 import ToggleTheme from "@/theme/component/ToggleTheme";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -16,17 +17,24 @@ export default function Navbar() {
       </h3>
       <div className="flex h-full items-center gap-4">
         <Link href="/products/add">
-          <Button
-            type="button"
-            label="Review a product"
-            className="bg-blue-600 dark:bg-white/5 text-white/90"
-          />
-        </Link>
-        <Button
-          type="button"
-          label="Log In"
-          className="bg-black/85 dark:bg-white/5 text-white/90"
-        />
+            <Button
+              type="button"
+              label="Review a product"
+              className="bg-blue-600 dark:bg-white/5 text-white/90"
+            />
+          </Link>
+        <SignedOut>
+          <Link href="/sign-in">
+            <Button
+              type="button"
+              label="Log In"
+              className="bg-black/85 dark:bg-white/5 text-white/90"
+            />
+          </Link>
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
         <ToggleTheme />
       </div>
     </nav>
