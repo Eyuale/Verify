@@ -17,18 +17,20 @@ const ProductCard = ({
         <img
           src={imageUrl}
           alt="iPhone 16 Pro Max"
-          className="object-contain"
+          className="object-contain w-full h-full"
         />
       </div>
 
       {/* content area */}
       <div className="w-full p-2 pb-4 relative">
-        <span className="py-8 opacity-70 text-sm tracking-tight">
-          {company_name}
-        </span>
+        <div className="w-full flex items-center h-10 justify-between">
+          <span className="py-8 opacity-70 text-sm tracking-tight">
+            {company_name}
+          </span>
+          <span className="font-medium ">${price}</span>
+        </div>
         <h1 className="tracking-tight flex w-full items-center justify-between">
           <span>{product_name}</span>{" "}
-          <span className="font-medium ">${price}</span>
         </h1>
         <p className="text-xs opacity-60">{description}</p>
       </div>
