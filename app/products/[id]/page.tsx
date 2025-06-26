@@ -27,17 +27,33 @@ export default async function ProductDetailsPage({
     }
 
     return (
-      <div className="pt-24">
-        <h1>{product.product_name}</h1>
-        <p>Description: {product.description}</p>
-        <p>Price: ${product.price}</p>
-        <p>Company: {product.company_name}</p>
-        <img
-          src={product.imageUrl}
-          alt={product.product_name}
-          style={{ maxWidth: "300px" }}
-        />
-        {/* Add more product details as needed */}
+      <div className="w-full flex flex-col">
+        <div className="pt-24 grid grid-cols-3">
+          <div className="w-full p-4">
+            <img
+              src={product.imageUrl}
+              alt={product.product_name}
+              style={{ maxWidth: "300px" }}
+            />
+          </div>
+          <div className="w-full space-y-2 col-span-2 pt-4 px-8">
+            {/* Content Spec */}
+            <h1 className="capitalize text-2xl tracking-tight">
+              {product.product_name}
+            </h1>
+            <p className="opacity-90 text-sm max-w-[500px]">
+              {product.description}
+            </p>
+            <p className="text-blue-600">Price: ${product.price}</p>
+            <p className="text-sm opacity-80 ">
+              Sold by <br />
+              {product.company_name} INC.
+            </p>
+            {/* Comments and AI Summary */}
+            <div className="w-full rounded-lg bg-black/5 p-4 min-h-56 mt-8"></div>
+          </div>
+          {/* Add more product details as needed */}
+        </div>
       </div>
     );
   } catch (error) {
