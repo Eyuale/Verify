@@ -4,6 +4,7 @@ import React, { ChangeEvent } from "react";
 
 // Update the type definition to accept `value` and `onChange` from the parent
 type T_INPUT = {
+  accept?: string;
   label?: string;
   type?: string;
   placeholder?: string;
@@ -11,11 +12,12 @@ type T_INPUT = {
   required?: boolean;
   isTextArea?: boolean;
   maxLength?: number;
-  value: string | number; // <-- ADDED: The component's value is now a required prop
+  value?: string | number; // <-- ADDED: The component's value is now a required prop
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // <-- ADDED: The change handler is a prop
 };
 
 const Input = ({
+  accept,
   label,
   type = "text",
   placeholder,
@@ -49,6 +51,7 @@ const Input = ({
         />
       ) : (
         <input
+          accept={accept}
           id={name}
           type={type}
           name={name}

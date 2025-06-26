@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
 
     // 2. Parse the incoming JSON data
     const body: T_PRODUCT_DOCUMENT = await req.json();
+
+    console.log(body);
     const {
       product_name,
       description,
