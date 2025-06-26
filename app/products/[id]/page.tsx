@@ -1,6 +1,9 @@
 import { connectToDatabase } from "@/utils/db";
 import { Product } from "@/models/productSchema";
 import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data";
+import Link from "next/link";
+import Button from "@/shared/components/button";
+import { ArrowLeft } from "lucide-react";
 
 export default async function ProductDetailsPage({
   params,
@@ -27,8 +30,16 @@ export default async function ProductDetailsPage({
     }
 
     return (
-      <div className="w-full flex flex-col">
-        <div className="pt-24 grid grid-cols-3">
+      <div className="w-full flex flex-col pt-18">
+        <Link href={"/"}>
+          <Button
+            label="back"
+            icon={<ArrowLeft size={16} />}
+            type="button"
+            className="bg-black/5 dark:bg-white/5 text-black/60 ml-4"
+          />
+        </Link>
+        <div className="pt-12 grid grid-cols-3">
           <div className="w-full p-4">
             <img
               src={product.imageUrl}
@@ -50,7 +61,7 @@ export default async function ProductDetailsPage({
               {product.company_name} INC.
             </p>
             {/* Comments and AI Summary */}
-            <div className="w-full rounded-lg bg-black/5 p-4 min-h-56 mt-8"></div>
+            <div className="w-full rounded-lg bg-black/5 dark:bg-white/5 p-4 min-h-56 mt-8"></div>
           </div>
           {/* Add more product details as needed */}
         </div>
