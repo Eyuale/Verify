@@ -1,5 +1,5 @@
 import { Schema, models, model } from "mongoose";
-import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data";
+import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data"; // Make sure to update this type as well!
 
 const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
   product_name: {
@@ -10,8 +10,20 @@ const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
     required: true,
     type: String,
   },
+  rating: {
+    // New field
+    required: true, // Or false if you want it optional
+    type: Number,
+    min: 1,
+    max: 5,
+  },
   imageUrl: {
     required: true,
+    type: String,
+  },
+  videoUrl: {
+    // New field
+    required: false, // Optional
     type: String,
   },
   price: {
@@ -25,7 +37,7 @@ const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
   userId: {
     type: String,
     required: true,
-  }
+  },
 });
 
 export const Product =
