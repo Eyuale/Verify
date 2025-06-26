@@ -1,4 +1,4 @@
-import { Schema, models, model, Document } from "mongoose";
+import { Schema, models, model } from "mongoose";
 import { T_PRODUCT_DOCUMENT } from "@/components/product/data/data";
 
 const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
@@ -22,6 +22,10 @@ const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
     type: String,
     required: false,
   },
+  userId: {
+    type: String,
+    required: true,
+  }
 });
 
 export const Product =

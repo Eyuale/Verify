@@ -24,9 +24,9 @@ const ProductCard = ({
       {/* content area */}
       <div className="w-full p-2 pb-4 relative">
         <div className="w-full flex items-center h-10 justify-between">
-          <span className="py-8 opacity-70 text-sm tracking-tight">
-            {company_name}
-          </span>
+        <span className="py-8 opacity-70 text-sm tracking-tight">
+          {company_name}
+        </span>
           <span className="font-medium ">${price}</span>
         </div>
         <h1 className="tracking-tight flex w-full items-center justify-between">

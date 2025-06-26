@@ -2,6 +2,7 @@
 import { connectToDatabase } from "@/utils/db";
 import { Product } from "@/models/productSchema";
 import { getSession, saveSession } from "@/utils/session";
+import { currentUser } from "@clerk/nextjs/server";
 
 export interface ActionResponse {
   success: boolean;
@@ -36,6 +37,9 @@ export const productFormAction = async (
 ): Promise<ActionResponse> => {
   try {
     const session = await getSession();
+    const  user = await currentUser()
+
+    console.log("user id:", user?.id)
     const data: Record<string, string> = {
       ...session.formData,
       ...Object.fromEntries(
@@ -64,15 +68,17 @@ export const productFormAction = async (
     }
 
     await connectToDatabase();
-    const newProduct = new Product({
+    const newProduct = await new Product({
       product_name,
       description,
       imageUrl,
       price: parsedPrice,
       company_name,
+      userId: user?.id,
     });
     await newProduct.save();
 
+    console.log(newProduct)
     // Clear session
     session.formData = {};
     await saveSession(session);

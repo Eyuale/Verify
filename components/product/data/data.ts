@@ -15,6 +15,7 @@ type T_PRODUCT_DOCUMENT = {
   price: number;
   company_name?: string;
   __v?: number; // Mongoose version key
+  userId: string;
 };
 
 export type { T_PRODUCT, T_PRODUCT_DOCUMENT };
