@@ -1,72 +1,70 @@
-"use client"; // This component needs client-side interactivity for character counting
+"use client";
 
-import React, { useState, ChangeEvent } from "react";
+import React, { ChangeEvent } from "react";
 
+// Update the type definition to accept `value` and `onChange` from the parent
 type T_INPUT = {
   label?: string;
-  type?: string; // Made optional as per previous discussion
+  type?: string;
   placeholder?: string;
   name: string;
   required?: boolean;
-  isTextArea?: boolean; // New prop: to render a textarea
-  maxLength?: number; // New prop: for character limit
-  initialValue?: string; // New prop: to pre-fill value if needed
+  isTextArea?: boolean;
+  maxLength?: number;
+  value: string | number; // <-- ADDED: The component's value is now a required prop
+  onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // <-- ADDED: The change handler is a prop
 };
 
 const Input = ({
   label,
-  type = "text", // Default type to 'text' if not provided
+  type = "text",
   placeholder,
   name,
   required,
-  isTextArea = false, // Default to false
+  isTextArea = false,
   maxLength,
-  initialValue = "", // Default to empty string
+  value, // <-- DESTRUCTURED from props
+  onChange, // <-- DESTRUCTURED from props
 }: T_INPUT) => {
-  // Use state to manage the value for character counting
-  const [inputValue, setInputValue] = useState(initialValue);
-
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setInputValue(e.target.value);
-  };
+  // REMOVED: The component no longer needs its own internal state for the value.
+  // const [inputValue, setInputValue] = useState(initialValue);
+  // const handleChange = ...
 
   return (
     <div className="w-full space-y-2 flex flex-col">
       <label htmlFor={name} className="text-sm">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}{" "}
-        {/* Add required indicator */}
+        {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       {isTextArea ? (
         <textarea
-          id={name} // Use id for label association
+          id={name}
           name={name}
           placeholder={placeholder}
           required={required}
           maxLength={maxLength}
-          value={inputValue} // Controlled component for counting
-          onChange={handleChange}
-          className="bg-black/5 rounded-md dark:bg-white/5 p-2 text-sm min-h-[100px] resize-y" // Added min-height and resize
+          value={value} // <-- Use the `value` prop from the parent
+          onChange={onChange} // <-- Use the `onChange` prop from the parent
+          className="bg-black/5 rounded-md dark:bg-white/5 p-2 text-sm min-h-[100px] resize-y"
         />
       ) : (
         <input
-          id={name} // Use id for label association
+          id={name}
           type={type}
           name={name}
           placeholder={placeholder}
           required={required}
-          maxLength={maxLength} // Apply maxLength to input too if needed
-          value={inputValue} // Controlled component for counting
-          onChange={handleChange}
+          maxLength={maxLength}
+          value={value} // <-- Use the `value` prop from the parent
+          onChange={onChange} // <-- Use the `onChange` prop from the parent
           className="bg-black/5 rounded-md dark:bg-white/5 p-2 text-sm"
         />
       )}
 
+      {/* The character counter now reads the length of the value prop */}
       {maxLength && (
         <p className="text-xs text-gray-500 text-right">
-          {inputValue.length}/{maxLength} characters
+          {String(value).length}/{maxLength} characters
         </p>
       )}
     </div>
