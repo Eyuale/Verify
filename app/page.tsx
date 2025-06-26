@@ -7,17 +7,20 @@ import { Suspense } from "react";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { success?: string; error?: string };
+  searchParams: Promise<{ success?: string; error?: string }>;
 }) {
+  // Await searchParams to resolve the query parameters
+  const params = await searchParams;
   await connectToDatabase();
   const products = (await Product.find({}).lean()) as T_PRODUCT_DOCUMENT[];
+
   return (
     <div className="w-full min-h-screen flex flex-col items-center p-4 mt-32">
-      {searchParams.success && (
-        <p className="text-green-500 mb-4">{searchParams.success}</p>
+      {params.success && (
+        <p className="text-green-500 mb-4">{params.success}</p>
       )}
-      {searchParams.error && (
-        <p className="text-red-500 mb-4">{searchParams.error}</p>
+      {params.error && (
+        <p className="text-red-500 mb-4">{params.error}</p>
       )}
 
       <Suspense fallback={<p>Loading products...</p>}>
@@ -27,18 +30,18 @@ export default async function Home({
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl">
-        {products.map((product) => (
-          <ProductCard
+            {products.map((product) => (
+              <ProductCard
                 key={product._id}
                 id={product._id}
-            product_name={product.product_name}
-            description={product.description}
-            imageUrl={product.imageUrl}
-            price={product.price}
+                product_name={product.product_name}
+                description={product.description}
+                imageUrl={product.imageUrl}
+                price={product.price}
                 company_name={product.company_name}
-          />
-        ))}
-      </div>
+              />
+            ))}
+          </div>
         )}
       </Suspense>
     </div>
