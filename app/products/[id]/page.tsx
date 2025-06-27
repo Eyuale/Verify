@@ -42,7 +42,7 @@ export default async function ProductDetailsPage({
         <div className="pt-12 grid grid-cols-3">
           <div className="w-full p-4">
             <video
-              src={`https://verify-product-review.s3.us-east-1.amazonaws.com/${product.videoUrl}`}
+              src={`${process.env.DISTRIBUTION_DOMAIN_NAME}/${product.videoUrl}`}
               controls
               className="w-full h-auto rounded-lg shadow-lg"
               poster={product.imageUrl} // Use imageUrl as poster for the video
