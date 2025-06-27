@@ -36,7 +36,7 @@ export default async function ProductDetailsPage({
             label="back"
             icon={<ArrowLeft size={16} />}
             type="button"
-            className="bg-black/5 dark:bg-white/5 text-black/60 ml-4"
+            className="bg-black/5 dark:bg-white/5 text-black/60 ml-4 dark:text-white/70"
           />
         </Link>
         <div className="pt-12 grid grid-cols-3">
