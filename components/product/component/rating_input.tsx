@@ -1,14 +1,14 @@
-"use client"; // This component needs client-side interactivity
+// components/product/component/rating_input.tsx (RatingInput)
+"use client";
 
 import React, { useState } from "react";
 import { Star } from "lucide-react";
 
-// Update the props interface to make the component controlled
 interface StarRatingInputProps {
   name: string;
   label: string;
-  rating: number; // <-- ADDED: The current rating is now passed as a prop
-  onRatingChange: (rating: number) => void; // <-- ADDED: A function to call when the rating changes
+  rating: number;
+  onRatingChange: (rating: number) => void;
   maxRating?: number;
   required?: boolean;
 }
@@ -16,17 +16,12 @@ interface StarRatingInputProps {
 const StarRatingInput: React.FC<StarRatingInputProps> = ({
   name,
   label,
-  rating, // <-- DESTRUCTURED: The current rating value from props
-  onRatingChange, // <-- DESTRUCTURED: The handler function from props
+  rating,
+  onRatingChange,
   maxRating = 5,
   required = false,
 }) => {
-  // The hover state can remain internal as it's purely for UI display
   const [hoverRating, setHoverRating] = useState(0);
-
-  // REMOVED: The selected rating is no longer managed internally.
-  // The `rating` prop is the single source of truth.
-  // const [selectedRating, setSelectedRating] = useState(initialRating);
 
   const handleMouseEnter = (index: number) => {
     setHoverRating(index);
@@ -37,11 +32,9 @@ const StarRatingInput: React.FC<StarRatingInputProps> = ({
   };
 
   const handleClick = (newRating: number) => {
-    // Instead of setting internal state, call the function passed from the parent.
     onRatingChange(newRating);
   };
 
-  // The display logic now uses the `rating` prop for the selected value.
   const displayRating = hoverRating || rating;
 
   return (
@@ -52,6 +45,7 @@ const StarRatingInput: React.FC<StarRatingInputProps> = ({
       </label>
       <div className="flex items-center">
         {[...Array(maxRating)].map((_, index) => {
+          // <-- Fix is here: added [...Array(maxRating)]
           const ratingValue = index + 1;
           return (
             <Star
@@ -64,15 +58,13 @@ const StarRatingInput: React.FC<StarRatingInputProps> = ({
               size={24}
               onMouseEnter={() => handleMouseEnter(ratingValue)}
               onMouseLeave={handleMouseLeave}
-              onClick={() => handleClick(ratingValue)} // <-- Calls the new handler
+              onClick={() => handleClick(ratingValue)}
             />
           );
         })}
       </div>
-      {/* The hidden input now reflects the rating from the parent's state */}
       <input type="hidden" name={name} value={rating} required={required} />
 
-      {/* The validation message also uses the `rating` prop */}
       {required && rating === 0 && (
         <p className="text-red-500 text-xs mt-1">Please select a rating.</p>
       )}
