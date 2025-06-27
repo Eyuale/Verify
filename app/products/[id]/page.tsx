@@ -41,13 +41,15 @@ export default async function ProductDetailsPage({
         </Link>
         <div className="pt-12 grid grid-cols-3">
           <div className="w-full p-4">
-            <video
-              src={`https://verify-product-review.s3.us-east-1.amazonaws.com/${product.videoUrl}`}
-              controls
-              className="w-full h-auto rounded-lg shadow-lg"
-              poster={product.imageUrl} // Use imageUrl as poster for the video
-              preload="metadata"
-            />
+            <div className="h-[450px] flex items-center justify-center overflow-hidden rounded-2xl">
+              <video
+                src={`https://verify-product-review.s3.us-east-1.amazonaws.com/${product.videoUrl}`}
+                controls
+                className="w-full h-auto rounded-lg shadow-lg object-contain"
+                poster={product.imageUrl} // Use imageUrl as poster for the video
+                preload="metadata"
+              />
+            </div>
           </div>
           <div className="w-full space-y-2 col-span-2 pt-4 px-8">
             {/* Content Spec */}
