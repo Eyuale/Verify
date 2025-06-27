@@ -19,9 +19,7 @@ export default async function Home({
       {params.success && (
         <p className="text-green-500 mb-4">{params.success}</p>
       )}
-      {params.error && (
-        <p className="text-red-500 mb-4">{params.error}</p>
-      )}
+      {params.error && <p className="text-red-500 mb-4">{params.error}</p>}
 
       <Suspense fallback={<p>Loading products...</p>}>
         {products.length === 0 ? (
@@ -29,7 +27,31 @@ export default async function Home({
             No products found. Add a product to start reviewing!
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl">
+          <div className="grid grid-cols-1 gap-4 w-full max-w-4xl">
+            {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                id={product._id}
+                product_name={product.product_name}
+                description={product.description}
+                imageUrl={product.imageUrl}
+                price={product.price}
+                company_name={product.company_name}
+              />
+            ))}
+
+            {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                id={product._id}
+                product_name={product.product_name}
+                description={product.description}
+                imageUrl={product.imageUrl}
+                price={product.price}
+                company_name={product.company_name}
+              />
+            ))}
+
             {products.map((product) => (
               <ProductCard
                 key={product._id}

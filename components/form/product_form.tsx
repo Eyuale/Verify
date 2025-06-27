@@ -58,9 +58,7 @@ export default function ProductForm({ searchParams }: ProductFormProps) {
     } else {
       const value = e.target.value;
       const processedValue =
-        name === "price" || name === "rating"
-          ? parseFloat(value) || 0
-          : value;
+        name === "price" || name === "rating" ? parseFloat(value) || 0 : value;
       setFormData((prevData) => ({
         ...prevData,
         [name]: processedValue,
@@ -157,7 +155,7 @@ export default function ProductForm({ searchParams }: ProductFormProps) {
     <div className="w-full h-full flex flex-col items-center justify-center py-32">
       <form onSubmit={handleSubmit} className="w-full max-w-[500px] space-y-6">
         <h1 className="w-full text-2xl tracking-tight font-medium mb-8">
-          Review a Product
+          Create a Review for a Product
         </h1>
 
         <Input

@@ -2,6 +2,11 @@ import Link from "next/link";
 import React from "react";
 import { type T_PRODUCT } from "./types/data";
 
+// icon
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { LucideStar } from "lucide-react";
+
 const ProductCard = ({
   id,
   product_name,
@@ -11,29 +16,42 @@ const ProductCard = ({
   company_name,
 }: T_PRODUCT) => {
   return (
+    // Product Card Component //
     <Link href={`/products/${id}`}>
-      <div className="w-full h-[400px] bg-black/5 dark:bg-white/5 rounded-lg p-1.5 flex flex-col">
-        {/* Image */}
-        <div className="w-full flex items-center justify-center h-56 rounded-md overflow-hidden bg-white">
-          <img
-            src={imageUrl}
-            alt={product_name}
-            className="object-cover w-full h-full"
-          />
-        </div>
-
-        {/* Content Area */}
-        <div className="w-full p-2 pb-4 relative">
-          <div className="w-full flex items-center h-10 justify-between">
-            <span className="py-8 opacity-70 text-sm tracking-tight">
-              {company_name}
-            </span>
-            <span className="font-medium">${price}</span>
+      <div className="w-[720px] h-auto dark:bg-white/5 rounded-lg p-2.5 flex flex-col border border-black/5">
+        <div className="w-full flex items-start gap-2">
+          <div className="w-[120px] h-[100px] flex items-center justify-center overflow-hidden rounded-md">
+            <img
+              src={imageUrl}
+              alt={product_name}
+              className="w-full h-full object-cover rounded-lg"
+            />
           </div>
-          <h1 className="tracking-tight flex w-full items-center justify-between">
-            <span>{product_name}</span>
-          </h1>
-          <p className="text-xs opacity-60">{description}</p>
+          {/*  */}
+          <div className="flex flex-1 flex-col pl-1 space-y-1">
+            <span className="font-normal tracking-tighter text-xl ">
+              {product_name}
+            </span>
+            <span className="flex items-center gap-1 text-sm">
+              <span className="opacity-70 text-sm">4.6</span>
+              <FontAwesomeIcon
+                icon={faStar}
+                size="xs"
+                className="text-yellow-500"
+              />
+              <span className="opacity-70 text-sm">1.2K reviews</span>
+            </span>
+            <span className="text-sm max-w-[500px] opacity-80">
+              {description}
+            </span>
+          </div>
+        </div>
+        <span className="text-sm opacity-30 mt-4">Video Reviews</span>
+        <div className="w-full mt-1 flex items-start gap-3">
+          <div className="rounded-md bg-black/5 h-56 w-42" />
+          <div className="rounded-md bg-black/5 h-56 w-42" />
+          <div className="rounded-md bg-black/5 h-56 w-42" />
+          <div className="rounded-md bg-black/5 h-56 w-42" />
         </div>
       </div>
     </Link>

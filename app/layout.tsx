@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar/navbar";
 import Providers from "@/theme/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
+import FontAwesomeConfig from "./fontawesome";
 
 export const metadata: Metadata = {
   title: "Verify",
@@ -17,6 +18,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
+        <head>
+          <FontAwesomeConfig />
+        </head>
         <body>
           <Providers>
             <Navbar />

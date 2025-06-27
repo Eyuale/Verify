@@ -1,7 +1,7 @@
 import Button from "@/shared/components/button";
 import ToggleTheme from "@/theme/component/ToggleTheme";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, LucidePlus } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -19,7 +19,8 @@ export default function Navbar() {
         <Link href="/products/add">
           <Button
             type="button"
-            label="Review a product"
+            label="Create"
+            icon={<LucidePlus size={16} />}
             className="bg-blue-600 dark:bg-white/10 text-white/90"
           />
         </Link>
