@@ -1,6 +1,6 @@
-import { Schema, model, models, Types } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
-// — Review sub‑document schema
+// — Review sub-document schema
 const ReviewSchema = new Schema(
   {
     userId: { type: String, required: true },
@@ -21,11 +21,13 @@ const ProductSchema = new Schema(
     videoUrl: { type: String },
     price: { type: Number, required: true },
     company_name: { type: String },
+    model: { type: String }, // <-- Added model
+    category: { type: String }, // <-- Added category
     userId: { type: String, required: true },
     reviews: { type: [ReviewSchema], default: [] },
   },
   { timestamps: true }
 );
 
-// Re‑use compiled model if it exists (helps with hot reload in dev)
+// Re-use compiled model if it exists (helps with hot reload in dev)
 export const Product = models.Product || model("Product", ProductSchema);

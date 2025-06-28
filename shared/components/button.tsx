@@ -20,7 +20,7 @@ const Button = ({
 }: T_BUTTON) => {
   return (
     <button
-      className={`p-1 px-4 flex items-center justify-center h-8 cursor-pointer rounded-lg outline-none ${className} ${
+      className={`p-4 py-5 flex items-center justify-center h-8 cursor-pointer rounded-full outline-none ${className} ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       }`}
       onClick={onClick}
@@ -28,7 +28,7 @@ const Button = ({
       disabled={disabled} // Pass disabled prop to button
     >
       <span>{icon}</span>
-      <span className="text-sm tracking-tight">{label}</span>
+      <span className="text-[13px] tracking-tight font-medium">{label}</span>
     </button>
   );
 };

@@ -20,8 +20,8 @@ export default function Navbar() {
           <Button
             type="button"
             label="Create"
-            icon={<LucidePlus size={16} />}
-            className="bg-blue-600 dark:bg-white/10 text-white/90"
+            icon={<LucidePlus size={14} strokeWidth={3} />}
+            className="bg-blue-800 dark:bg-white/10 text-white/90 gap-1 pr-5"
           />
         </Link>
         <SignedOut>

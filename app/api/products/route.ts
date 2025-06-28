@@ -19,6 +19,8 @@ interface ProductData {
   imageUrl: string;
   price: number;
   company_name?: string;
+  model?: string; // <-- Added model
+  category?: string; // <-- Added category
 }
 
 // Define the shape of the incoming request body from our form
@@ -61,6 +63,7 @@ export async function POST(request: NextRequest) {
       }
       product = await Product.create({
         ...productData,
+        userId: userId, // <-- FIX: Added the authenticated userId here
         reviews: [reviewData], // Create the product with its first review
       });
     } else {

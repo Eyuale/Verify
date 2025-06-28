@@ -28,12 +28,21 @@ interface FormData {
   imageUrl: string;
   price: number;
   company_name: string;
+  model: string; // <-- Added model
+  category: string; // <-- Added category
 }
 
 // Define the shape of a product returned by our search API
 type T_SEARCH_PRODUCT = Pick<
   T_PRODUCT_DOCUMENT,
-  "_id" | "product_name" | "description" | "imageUrl" | "price" | "company_name"
+  | "_id"
+  | "product_name"
+  | "description"
+  | "imageUrl"
+  | "price"
+  | "company_name"
+  | "model"
+  | "category"
 >;
 
 export default function ProductForm() {
@@ -49,6 +58,8 @@ export default function ProductForm() {
     imageUrl: "",
     price: 0,
     company_name: "",
+    model: "", // <-- Initialize model
+    category: "", // <-- Initialize category
   });
   const [selectedProduct, setSelectedProduct] =
     useState<T_SEARCH_PRODUCT | null>(null);
@@ -106,7 +117,13 @@ export default function ProductForm() {
    */
   const handleSelectProduct = (product: T_SEARCH_PRODUCT) => {
     setSelectedProduct(product);
-    setFormData((prev) => ({ ...prev, product_name: product.product_name }));
+    setFormData((prev) => ({
+      ...prev,
+      product_name: product.product_name,
+      company_name: product.company_name || "",
+      model: product.model || "",
+      category: product.category || "",
+    }));
     setIsNewProduct(false);
     setSearchResults([]);
     setSearchQuery(product.product_name);
@@ -216,6 +233,8 @@ export default function ProductForm() {
           company_name: isNewProduct
             ? formData.company_name
             : selectedProduct!.company_name,
+          model: formData.model, // <-- Add model
+          category: formData.category, // <-- Add category
         },
         reviewData: {
           userId: user.id, // <-- Using Clerk User ID
@@ -303,7 +322,7 @@ export default function ProductForm() {
             )}
 
             <div className="text-center pt-4">
-              <p className="text-gray-500 mb-2">Can't find the product?</p>
+              <p className="opacity-60 text-sm mb-2">Can't find the product?</p>
               <Button
                 type="button"
                 label="Create a New Product Profile"
@@ -362,6 +381,22 @@ export default function ProductForm() {
                   value={formData.company_name}
                   onChange={handleChange}
                   placeholder="e.g., Apple"
+                />
+                <Input
+                  label="Model"
+                  type="text"
+                  name="model"
+                  value={formData.model}
+                  onChange={handleChange}
+                  placeholder="e.g., iPhone 15 Pro"
+                />
+                <Input
+                  label="Category"
+                  type="text"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  placeholder="e.g., Electronics"
                 />
                 <hr className="my-6" />
                 <h2 className="text-lg font-semibold">Your Review</h2>

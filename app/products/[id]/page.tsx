@@ -4,9 +4,7 @@ import Button from "@/shared/components/button";
 import { ArrowLeft } from "lucide-react";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Product } from "@/models/productSchema";
-import ScrollableVideoList from "@/components/product/component/ScrollableVideoList";
 import ProductVideoFeed from "@/components/product/component/ProductVideoFeed";
-// import ProductVideoFeed from '@/components/ProductVideoFeed'; // alternative
 
 export default async function ProductDetailsPage({
   params,
@@ -29,7 +27,7 @@ export default async function ProductDetailsPage({
   return (
     <div className="grid grid-cols-3 w-full pt-12 min-h-screen">
       {/* Left: scrollable feed */}
-      <div className="w-full h-full border-r ">
+      <div className="w-full h-full pl-2">
         <ProductVideoFeed videoUrls={videoUrls} posterUrl={product.imageUrl} />
       </div>
 
@@ -39,8 +37,8 @@ export default async function ProductDetailsPage({
           <Button
             type="button"
             label="Back"
-            icon={<ArrowLeft size={16} />}
-            className="bg-black/10 text-black"
+            icon={<ArrowLeft size={16} className="mr-2" />}
+            className="bg-blue-50/70 text-blue-600 pr-6"
           />
         </Link>
 

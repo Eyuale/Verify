@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { PlayCircle } from "lucide-react";
 
 type T_PRODUCT = {
   id: string;
@@ -83,18 +84,19 @@ const ProductCard = ({
         <div className="w-full mt-1 flex items-start gap-3">
           {videoUrls.length > 0 ? (
             videoUrls.slice(0, 4).map((url, i) => (
-              <div
-                key={i}
-                className="rounded-md overflow-hidden h-56 w-42 bg-black/5"
-              >
-                <video
-                  src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${url}`}
-                  className="w-full h-full object-cover"
-                  poster={fallbackImage}
-                  controls
-                  preload="metadata"
-                />
-              </div>
+              <Link key={i} href={`/products/${id}?videoIndex=${i}`}>
+                <div className="relative rounded-md overflow-hidden h-56 w-42 bg-black/5 group">
+                  <video
+                    src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${url}`}
+                    className="w-full h-full object-cover"
+                    poster={fallbackImage}
+                    preload="metadata"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PlayCircle size={48} className="text-white" />
+                  </div>
+                </div>
+              </Link>
             ))
           ) : (
             <>

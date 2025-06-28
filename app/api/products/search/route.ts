@@ -4,29 +4,30 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { Product } from "@/models/productSchema";
 
 export async function GET(request: NextRequest) {
-  // Extract the search query 'q' from the URL's search parameters.
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q");
+  const category = searchParams.get("category"); // <-- Get category from query params
 
-  // If no query is provided, return an error.
-  if (!query) {
+  if (!query && !category) {
     return NextResponse.json(
-      { success: false, error: "Search query not provided." },
+      { success: false, error: "Search query or category must be provided." },
       { status: 400 }
     );
   }
 
   try {
-    // Connect to the database.
     await connectToDatabase();
 
-    const products = await Product.find({
-      product_name: { $regex: query, $options: "i" },
-    })
-      .limit(10)
-      .lean(); // .lean() returns plain JavaScript objects for better performance.
+    const filter: any = {};
+    if (query) {
+      filter.product_name = { $regex: query, $options: "i" };
+    }
+    if (category) {
+      filter.category = category;
+    }
 
-    // Return the found products.
+    const products = await Product.find(filter).limit(10).lean();
+
     return NextResponse.json({ success: true, products });
   } catch (err) {
     console.error("GET /api/products/search error:", err);

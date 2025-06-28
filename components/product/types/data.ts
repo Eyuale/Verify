@@ -7,13 +7,15 @@ type T_PRODUCT = {
   imageUrl: string;
   price: number;
   company_name?: string;
+  model?: string; // <-- Added model
+  category?: string; // <-- Added category
   videoUrls: string[];
   averageRating: number; // ← new
   reviewCount: number;
 };
 
 type T_PRODUCT_DOCUMENT = {
-  _id: ObjectId; // <-- Add this line
+  _id: ObjectId;
   product_name: string;
   description: string;
   rating: number;
@@ -21,6 +23,8 @@ type T_PRODUCT_DOCUMENT = {
   videoUrl?: string;
   price: number;
   company_name?: string;
+  model?: string; // <-- Added model
+  category?: string; // <-- Added category
   userId: string;
 };
 
