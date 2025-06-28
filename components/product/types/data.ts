@@ -1,3 +1,5 @@
+import { ObjectId } from "mongoose";
+
 type T_PRODUCT = {
   id: string; // MongoDB _id as string
   product_name: string;
@@ -5,9 +7,13 @@ type T_PRODUCT = {
   imageUrl: string;
   price: number;
   company_name?: string;
+  videoUrls: string[];
+  averageRating: number; // ← new
+  reviewCount: number;
 };
 
 type T_PRODUCT_DOCUMENT = {
+  _id: ObjectId; // <-- Add this line
   product_name: string;
   description: string;
   rating: number;

@@ -1,44 +1,31 @@
-import { Schema, models, model } from "mongoose";
-import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data"; // Make sure to update this type as well!
+import { Schema, model, models, Types } from "mongoose";
 
-const productSchema = new Schema<T_PRODUCT_DOCUMENT>({
-  product_name: {
-    required: true,
-    type: String,
+// — Review sub‑document schema
+const ReviewSchema = new Schema(
+  {
+    userId: { type: String, required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    description: { type: String, required: true, maxlength: 500 },
+    videoUrl: { type: String },
+    createdAt: { type: Date, default: Date.now },
   },
-  description: {
-    required: true,
-    type: String,
-  },
-  rating: {
-    // New field
-    required: true, // Or false if you want it optional
-    type: Number,
-    min: 1,
-    max: 5,
-  },
-  imageUrl: {
-    required: true,
-    type: String,
-  },
-  videoUrl: {
-    // New field
-    required: false, // Optional
-    type: String,
-  },
-  price: {
-    required: true,
-    type: Number,
-  },
-  company_name: {
-    type: String,
-    required: false,
-  },
-  userId: {
-    type: String,
-    required: true,
-  },
-});
+  { _id: true } // each review gets its own ObjectId
+);
 
-export const Product =
-  models.Product || model<T_PRODUCT_DOCUMENT>("Product", productSchema);
+// — Product schema now includes an array of reviews
+const ProductSchema = new Schema(
+  {
+    product_name: { type: String, required: true },
+    description: { type: String, required: true },
+    imageUrl: { type: String, required: true },
+    videoUrl: { type: String },
+    price: { type: Number, required: true },
+    company_name: { type: String },
+    userId: { type: String, required: true },
+    reviews: { type: [ReviewSchema], default: [] },
+  },
+  { timestamps: true }
+);
+
+// Re‑use compiled model if it exists (helps with hot reload in dev)
+export const Product = models.Product || model("Product", ProductSchema);

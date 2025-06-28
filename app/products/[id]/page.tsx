@@ -1,76 +1,61 @@
-import { connectToDatabase } from "@/utils/db";
-import { Product } from "@/models/productSchema";
-import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data";
+// app/products/[id]/page.tsx
 import Link from "next/link";
 import Button from "@/shared/components/button";
 import { ArrowLeft } from "lucide-react";
+import { connectToDatabase } from "@/lib/mongoose";
+import { Product } from "@/models/productSchema";
+import ScrollableVideoList from "@/components/product/component/ScrollableVideoList";
+import ProductVideoFeed from "@/components/product/component/ProductVideoFeed";
+// import ProductVideoFeed from '@/components/ProductVideoFeed'; // alternative
 
 export default async function ProductDetailsPage({
   params,
 }: {
-  params: { id: string }; // <-- Change this line
+  params: { id: string };
 }) {
-  console.log("Attempting to connect to database...");
+  // Connect and fetch
   await connectToDatabase();
-  console.log("Database connection attempt finished.");
+  const raw = await Product.findById(params.id).lean();
+  if (!raw) {
+    return <div className="p-8">Product not found.</div>;
+  }
+  const product = JSON.parse(JSON.stringify(raw));
 
-  try {
-    const productId = params.id;
-    console.log("Fetching product with ID:", productId);
+  // Gather video URLs from embedded reviews
+  const videoUrls: string[] = (product.reviews || [])
+    .map((r: any) => r.videoUrl)
+    .filter((v: string) => !!v);
 
-    const product: T_PRODUCT_DOCUMENT | null = (await Product.findById(
-      productId
-    ).lean()) as T_PRODUCT_DOCUMENT | null;
+  return (
+    <div className="grid grid-cols-3 w-full pt-12 min-h-screen">
+      {/* Left: scrollable feed */}
+      <div className="w-full h-full border-r ">
+        <ProductVideoFeed videoUrls={videoUrls} posterUrl={product.imageUrl} />
+      </div>
 
-    console.log("Fetched product data:", product);
-
-    if (!product) {
-      console.log("Product not found for ID:", productId);
-      return <div>Product not found for ID: {productId}</div>;
-    }
-
-    return (
-      <div className="w-full flex flex-col pt-18">
-        <Link href={"/"}>
+      {/* Right: product details */}
+      <div className="flex-1 col-span-2 p-8 overflow-y-auto">
+        <Link href="/">
           <Button
-            label="back"
-            icon={<ArrowLeft size={16} />}
             type="button"
-            className="bg-black/5 dark:bg-white/5 text-black/60 ml-4 dark:text-white/70"
+            label="Back"
+            icon={<ArrowLeft size={16} />}
+            className="bg-black/10 text-black"
           />
         </Link>
-        <div className="pt-12 grid grid-cols-3">
-          <div className="w-full p-4">
-            <video
-              src={`${process.env.DISTRIBUTION_DOMAIN_NAME}/${product.videoUrl}`}
-              controls
-              className="w-full h-auto rounded-lg shadow-lg"
-              poster={product.imageUrl} // Use imageUrl as poster for the video
-              preload="metadata"
-            />
-          </div>
-          <div className="w-full space-y-2 col-span-2 pt-4 px-8">
-            {/* Content Spec */}
-            <h1 className="capitalize text-2xl tracking-tight">
-              {product.product_name}
-            </h1>
-            <p className="opacity-90 text-sm max-w-[500px]">
-              {product.description}
+
+        <div className="mt-6 space-y-4">
+          <h1 className="text-2xl font-semibold">{product.product_name}</h1>
+          <p className="text-gray-700">{product.description}</p>
+          <p className="text-blue-600">Price: ${product.price}</p>
+          {product.company_name && (
+            <p className="text-sm text-gray-500">
+              Sold by {product.company_name}
             </p>
-            <p className="text-blue-600">Price: ${product.price}</p>
-            <p className="text-sm opacity-80 ">
-              Sold by <br />
-              {product.company_name} INC.
-            </p>
-            {/* Comments and AI Summary */}
-            <div className="w-full rounded-lg bg-black/5 dark:bg-white/5 p-4 min-h-56 mt-8"></div>
-          </div>
-          {/* Add more product details as needed */}
+          )}
+          {/* Additional details or reviews summary can go here */}
         </div>
       </div>
-    );
-  } catch (error) {
-    console.error("Error fetching product:", error);
-    return <div>Error loading product: {(error as Error).message}</div>; // Show error message
-  }
+    </div>
+  );
 }

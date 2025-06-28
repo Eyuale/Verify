@@ -1,124 +1,98 @@
-import { NextResponse, NextRequest } from "next/server"; // Import NextRequest
-import { getAuth } from "@clerk/nextjs/server";
-import { connectToDatabase } from "@/utils/db";
+// app/api/products/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { connectToDatabase } from "@/lib/mongoose";
 import { Product } from "@/models/productSchema";
-import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data"; // Make sure to import your type
+import { getAuth } from "@clerk/nextjs/server"; // Import Clerk's server-side auth
 
-export async function POST(req: NextRequest) {
-  // Change Request to NextRequest
-  try {
-    // 1. Authenticate the user
-    const { userId } = getAuth(req);
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // 2. Parse the incoming JSON data
-    const body: T_PRODUCT_DOCUMENT = await req.json();
-
-    console.log(body);
-    const {
-      product_name,
-      description,
-      rating,
-      imageUrl,
-      videoUrl,
-      price,
-      company_name,
-    } = body;
-
-    // 3. Validate the data
-    if (!product_name || !description || !rating || !imageUrl || !price) {
-      return NextResponse.json(
-        { success: false, error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (rating < 1 || rating > 5) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid rating. Must be between 1 and 5.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // 4. Connect to the database
-    await connectToDatabase();
-
-    // 5. Create and save the new product
-    const newProduct = new Product({
-      product_name,
-      description,
-      rating,
-      imageUrl,
-      videoUrl: videoUrl || null,
-      price,
-      company_name: company_name || null,
-      userId: userId, // Add the authenticated user's ID
-    });
-
-    await newProduct.save();
-
-    console.log("New Product Created:", newProduct);
-
-    // 6. Return a success response
-    return NextResponse.json(
-      { success: true, product: newProduct.toObject() },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("Error creating product:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json(
-      { success: false, error: errorMessage },
-      { status: 500 }
-    );
-  }
+// Define the shape of a single review
+interface Review {
+  userId: string;
+  rating: number;
+  description: string;
+  videoUrl?: string;
 }
 
-export async function GET(req: NextRequest){
+// Define the shape of the data for a new product
+interface ProductData {
+  product_name: string;
+  description: string;
+  imageUrl: string;
+  price: number;
+  company_name?: string;
+}
+
+// Define the shape of the incoming request body from our form
+interface RequestBody {
+  isNew: boolean;
+  productId?: string;
+  productData: ProductData;
+  reviewData: Review;
+}
+
+export async function POST(request: NextRequest) {
+  // Server-side authentication with Clerk
+  const { userId } = getAuth(request);
+  if (!userId) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
   try {
-    // You can keep the authentication if you want to restrict GET access
-    // const { userId } = getAuth(req);
-    // if (!userId) {
-    //   return NextResponse.json(
-    //     { success: false, error: "Unauthorized" },
-    //     { status: 401 }
-    //   );
-    // }
-
     await connectToDatabase();
+    const body: RequestBody = await request.json();
+    const { isNew, productId, productData, reviewData } = body;
 
-    // Get the URL object from the request
-    const url = new URL(req.url);
+    // Double-check that the userId from the client matches the authenticated user
+    if (userId !== reviewData.userId) {
+      return NextResponse.json(
+        { success: false, error: "User ID mismatch." },
+        { status: 403 }
+      );
+    }
 
-    // Get the product_name from the query parameters
-    const product_name = url.searchParams.get("product_name");
+    let product;
 
-    let searchResult;
-    if (product_name) {
-      // If product_name is provided, search by it (case-insensitive example)
-      searchResult = await Product.find({ product_name: { $regex: product_name, $options: 'i' } });
+    if (isNew) {
+      // --- SCENARIO 1: CREATE NEW PRODUCT ---
+      if (!productData.product_name) {
+        throw new Error("Product name is required for a new product.");
+      }
+      product = await Product.create({
+        ...productData,
+        reviews: [reviewData], // Create the product with its first review
+      });
     } else {
-      // If no product_name is provided, return all products (or a paginated list)
-      searchResult = await Product.find({});
+      // --- SCENARIO 2: ADD REVIEW TO EXISTING PRODUCT ---
+      if (!productId) {
+        throw new Error("Product ID is required to add a new review.");
+      }
+      // Find the product and push the new review in a single, atomic operation
+      product = await Product.findByIdAndUpdate(
+        productId,
+        { $push: { reviews: reviewData } }, // $push adds the item to the array
+        { new: true, runValidators: true } // 'new: true' returns the updated document
+      );
+
+      if (!product) {
+        return NextResponse.json(
+          { success: false, error: "Product not found." },
+          { status: 404 }
+        );
+      }
     }
 
-
-    if(!searchResult || searchResult.length === 0){ // Check for empty array
-      return NextResponse.json({ message: "No product found" });
-    }
-
-    return NextResponse.json({ message: "Products found", searchResult });
-  } catch (error) {
-    console.error("Error fetching products:", error); // Use console.error for errors
-    return NextResponse.json({ message: "Server Error" }, { status: 500});
+    const safeProduct = JSON.parse(JSON.stringify(product));
+    return NextResponse.json(
+      { success: true, product: safeProduct },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    console.error("POST /api/products error:", err);
+    return NextResponse.json(
+      { success: false, error: err.message || "Failed to process request." },
+      { status: 500 }
+    );
   }
 }

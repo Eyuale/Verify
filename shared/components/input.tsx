@@ -1,4 +1,4 @@
-// shared/components/input.tsx (Input)
+// shared/components/input.tsx
 "use client";
 
 import React, { ChangeEvent } from "react";
@@ -12,6 +12,7 @@ type T_INPUT = {
   required?: boolean;
   isTextArea?: boolean;
   maxLength?: number;
+  list?: string; // ← NEW
   value?: string | number;
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 };
@@ -25,6 +26,7 @@ const Input = ({
   required,
   isTextArea = false,
   maxLength,
+  list, // ← NEW
   value,
   onChange,
 }: T_INPUT) => {
@@ -34,6 +36,7 @@ const Input = ({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
+
       {isTextArea ? (
         <textarea
           id={name}
@@ -54,6 +57,7 @@ const Input = ({
           placeholder={placeholder}
           required={required}
           maxLength={maxLength}
+          list={list} // ← PASS THROUGH
           value={value}
           onChange={onChange}
           className="bg-black/5 rounded-md dark:bg-white/5 p-2 text-sm"
