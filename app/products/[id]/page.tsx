@@ -4,7 +4,7 @@ import Button from "@/shared/components/button";
 import { ArrowLeft } from "lucide-react";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Product } from "@/models/productSchema";
-import ProductVideoFeed from "@/components/product/component/ProductVideoFeed";
+import ProductVideoFeed from "@/modules/product/component/ProductVideoFeed";
 
 export default async function ProductDetailsPage({
   params,

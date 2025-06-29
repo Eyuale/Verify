@@ -1,5 +1,5 @@
 // app/products/add/page.tsx
-import ProductForm from "@/components/product/component/ProductForm";
+import ProductForm from "@/modules/product/component/ProductForm";
 import { Suspense } from "react";
 
 export default async function AddProductPage({

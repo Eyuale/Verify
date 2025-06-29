@@ -14,7 +14,7 @@ type T_INPUT = {
   maxLength?: number;
   list?: string; // ← NEW
   value?: string | number;
-  onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 };
 
 const Input = ({

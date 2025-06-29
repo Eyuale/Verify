@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Product } from "@/models/productSchema";
-import ProductCard from "@/components/product/product";
+import ProductCard from "@/modules/product/ProductCard";
 
 export default async function Home({
   searchParams,

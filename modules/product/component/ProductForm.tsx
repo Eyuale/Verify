@@ -14,11 +14,11 @@ import { debounce } from "lodash"; // <-- We'll use debounce for the search
 // Component Imports
 import Button from "@/shared/components/button";
 import Input from "@/shared/components/input";
-import StarRatingInput from "@/components/product/component/rating_input";
+import StarRatingInput from "@/modules/product/component/rating_input";
 import { SendHorizontal, Search, Loader2, Info } from "lucide-react";
 
 // Type Imports
-import { T_PRODUCT_DOCUMENT } from "@/components/product/types/data";
+import { T_PRODUCT_DOCUMENT } from "@/modules/product/types/data";
 
 // Define the shape of the form data
 interface FormData {
