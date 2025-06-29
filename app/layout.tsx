@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/navbar/navbar";
 import Providers from "@/theme/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import FontAwesomeConfig from "./fontawesome";
@@ -22,10 +21,7 @@ export default function RootLayout({
           <FontAwesomeConfig />
         </head>
         <body>
-          <Providers>
-            <Navbar />
-            {children}
-          </Providers>
+          <Providers>{children}</Providers>
         </body>
       </html>
     </ClerkProvider>

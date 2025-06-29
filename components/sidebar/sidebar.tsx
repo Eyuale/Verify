@@ -1,9 +1,17 @@
 import React from "react";
 
-const Sidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+}
+
+const Sidebar = ({ isOpen }: SidebarProps) => {
   return (
-    <aside className=" w-56 h-screen border-r border-black/10 dark:border-white/10 p-2 pt-16">
-      <h2>Sidebar</h2>
+    <aside
+      className={` ${
+        isOpen ? "w-56" : "w-18"
+      } h-screen border-r border-black/10 dark:border-white/10 p-2 pt-16`}
+    >
+      <h2>{isOpen ? "Sidebar" : "SID"}</h2>
     </aside>
   );
 };
