@@ -33,7 +33,7 @@ export default function ProductVideoFeed({
 
   return (
     <div className="flex items-center justify-center space-x-4 p-4">
-      <div className="relative">
+      <div className="relative bg-black/80 h-screen">
         <video
           key={src}
           src={src}
@@ -41,7 +41,8 @@ export default function ProductVideoFeed({
           controls
           autoPlay
           preload="metadata"
-          className="w-[280px] h-[480px] object-cover rounded-lg shadow"
+          className="w-[280px] h-[480px] object-contain rounded-lg shadow"
+          style={{ aspectRatio: "9/16" }}
         />
         {/* <div className="absolute bottom-4 right-4 text-white bg-black/50 px-2 py-1 rounded">
           {idx + 1} / {videoUrls.length}

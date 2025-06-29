@@ -18,10 +18,10 @@ const ProductSchema = new Schema(
     product_name: { type: String, required: true },
     description: { type: String, required: true },
     imageUrl: { type: String, required: true },
-    videoUrl: { type: String },
+    // videoUrl: { type: String },
     price: { type: Number, required: true },
     company_name: { type: String },
-    model: { type: String }, // <-- Added model
+    model: { type: String, required: false }, // <-- Added model
     category: { type: String }, // <-- Added category
     userId: { type: String, required: true },
     reviews: { type: [ReviewSchema], default: [] },

@@ -25,14 +25,14 @@ export default async function ProductDetailsPage({
     .filter((v: string) => !!v);
 
   return (
-    <div className="grid grid-cols-3 w-full pt-12 min-h-screen">
+    <div className="grid grid-cols-2 w-full pt-12 min-h-screen">
       {/* Left: scrollable feed */}
       <div className="w-full h-full pl-2">
         <ProductVideoFeed videoUrls={videoUrls} posterUrl={product.imageUrl} />
       </div>
 
       {/* Right: product details */}
-      <div className="flex-1 col-span-2 p-8 overflow-y-auto">
+      <div className="flex-1 p-8 overflow-y-auto">
         <Link href="/">
           <Button
             type="button"

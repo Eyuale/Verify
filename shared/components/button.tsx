@@ -28,7 +28,7 @@ const Button = ({
       disabled={disabled} // Pass disabled prop to button
     >
       <span>{icon}</span>
-      <span className="text-[13px] tracking-tight font-medium">{label}</span>
+      <span className="text-[13px] font-medium">{label}</span>
     </button>
   );
 };
