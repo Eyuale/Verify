@@ -23,7 +23,7 @@ export default function ProductVideoFeed({
   }, [initialIndex]);
 
   if (videoUrls.length === 0) {
-    return <p className="text-gray-500 p-4">No videos available.</p>;
+    return <p className="p-4 text-gray-500">No videos available.</p>;
   }
 
   const prev = () => setIdx((i) => (i > 0 ? i - 1 : videoUrls.length - 1));
@@ -33,7 +33,7 @@ export default function ProductVideoFeed({
 
   return (
     <div className="flex items-center justify-center space-x-4 p-4">
-      <div className="relative bg-black/80 h-screen">
+      <div className="relative h-screen bg-black/80">
         <video
           key={src}
           src={src}
@@ -41,7 +41,7 @@ export default function ProductVideoFeed({
           controls
           autoPlay
           preload="metadata"
-          className="w-[280px] h-[480px] object-contain rounded-lg shadow"
+          className="h-[480px] w-[280px] rounded-lg object-contain shadow"
           style={{ aspectRatio: "9/16" }}
         />
         {/* <div className="absolute bottom-4 right-4 text-white bg-black/50 px-2 py-1 rounded">
@@ -51,14 +51,14 @@ export default function ProductVideoFeed({
       <div className="flex flex-col space-y-4">
         <button
           onClick={prev}
-          className="p-2 rounded-full bg-black/10 hover:bg-black/20"
+          className="rounded-full bg-black/10 p-2 hover:bg-black/20"
           aria-label="Previous"
         >
           <ChevronUp size={20} />
         </button>
         <button
           onClick={next}
-          className="p-2 rounded-full bg-black/10 hover:bg-black/20"
+          className="rounded-full bg-black/10 p-2 hover:bg-black/20"
           aria-label="Next"
         >
           <ChevronDown size={20} />

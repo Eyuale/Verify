@@ -5,7 +5,7 @@ import { Product } from "@/models/productSchema";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     await connectToDatabase();
@@ -13,7 +13,7 @@ export async function GET(
     if (!product) {
       return NextResponse.json(
         { success: false, error: "Product not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
     const safeProduct = JSON.parse(JSON.stringify(product));
@@ -22,14 +22,14 @@ export async function GET(
     console.error("GET /api/products/[id] error:", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch product" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     await connectToDatabase();
@@ -64,7 +64,7 @@ export async function PUT(
     if (!updated) {
       return NextResponse.json(
         { success: false, error: "Product not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -74,14 +74,14 @@ export async function PUT(
     console.error("PUT /api/products/[id] error:", err);
     return NextResponse.json(
       { success: false, error: "Failed to update product" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     await connectToDatabase();
@@ -89,7 +89,7 @@ export async function DELETE(
     if (!deleted) {
       return NextResponse.json(
         { success: false, error: "Product not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
     return NextResponse.json({ success: true });
@@ -97,7 +97,7 @@ export async function DELETE(
     console.error("DELETE /api/products/[id] error:", err);
     return NextResponse.json(
       { success: false, error: "Failed to delete product" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

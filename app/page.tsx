@@ -23,15 +23,15 @@ export default async function Home({
       price: 1,
       company_name: 1,
       reviews: 1,
-    }
+    },
   ).lean();
   const products = JSON.parse(JSON.stringify(rawProducts));
 
   // 3. Render
   return (
-    <div className="w-full min-h-screen flex flex-col items-center p-4 mt-32">
-      {success && <p className="text-green-500 mb-4">{success}</p>}
-      {error && <p className="text-red-500   mb-4">{error}</p>}
+    <div className="mt-32 flex min-h-screen w-full flex-col items-center p-4">
+      {success && <p className="mb-4 text-green-500">{success}</p>}
+      {error && <p className="mb-4 text-red-500">{error}</p>}
 
       {products.length === 0 ? (
         <p className="text-gray-500">
@@ -39,7 +39,7 @@ export default async function Home({
           reviewing!
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 w-full max-w-4xl">
+        <div className="grid w-full max-w-4xl grid-cols-1 gap-4">
           {products.map((product: any) => {
             const pid = product._id;
             const reviews = Array.isArray(product.reviews)
@@ -52,7 +52,7 @@ export default async function Home({
               .filter(Boolean) as string[];
             const total = reviews.reduce(
               (sum: number, r: any) => sum + (r.rating || 0),
-              0
+              0,
             );
             const count = reviews.length;
             const averageRating = count

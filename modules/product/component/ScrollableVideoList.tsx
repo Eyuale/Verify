@@ -18,7 +18,7 @@ export default function ScrollableVideoList({
   }
 
   return (
-    <div className="h-full overflow-y-auto space-y-4 p-2">
+    <div className="h-full space-y-4 overflow-y-auto p-2">
       {videoUrls.map((url, idx) => (
         <video
           key={idx}

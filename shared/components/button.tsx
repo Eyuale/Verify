@@ -20,8 +20,8 @@ const Button = ({
 }: T_BUTTON) => {
   return (
     <button
-      className={`p-4 py-5 flex items-center justify-center h-8 cursor-pointer rounded-full outline-none ${className} ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
+      className={`flex h-8 cursor-pointer items-center justify-center rounded-full p-4 py-5 outline-none ${className} ${
+        disabled ? "cursor-not-allowed opacity-50" : ""
       }`}
       onClick={onClick}
       type={type}

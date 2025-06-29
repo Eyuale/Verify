@@ -37,24 +37,24 @@ const ProductCard = ({
 
   return (
     <div
-      className="w-full h-auto rounded-lg p-2.5 flex flex-col border border-black/5 dark:border-white/5"
+      className="flex h-auto w-full flex-col rounded-lg border border-black/5 p-2.5 dark:border-white/5"
       onClick={() => router.push(`/products/${id}`)}
     >
       {/* Top section */}
-      <div className="w-full flex items-start gap-2">
+      <div className="flex w-full items-start gap-2">
         {/* Thumbnail */}
-        <div className="w-[120px] h-[100px] flex items-center justify-center overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
+        <div className="flex h-[100px] w-[120px] items-center justify-center overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
           <img
             src={fallbackImage}
             alt={product_name}
-            className="w-full h-full object-contain rounded-lg"
+            className="h-full w-full rounded-lg object-contain"
             onError={() => setFallbackImage("/fallback.jpg")}
           />
         </div>
 
         {/* Info */}
-        <div className="flex flex-1 flex-col pl-1 space-y-1 pt-1">
-          <span className="font-normal tracking-tighter text-xl">
+        <div className="flex flex-1 flex-col space-y-1 pt-1 pl-1">
+          <span className="text-xl font-normal tracking-tighter">
             {product_name}
           </span>
 
@@ -79,22 +79,22 @@ const ProductCard = ({
           </span>
 
           {/* Description */}
-          <span className="text-sm max-w-[500px] opacity-80">
+          <span className="max-w-[500px] text-sm opacity-80">
             {description}
           </span>
         </div>
       </div>
 
       {/* Video section */}
-      <span className="text-sm opacity-30 mt-4">Video Reviews</span>
-      <div className="w-full mt-1 flex items-start gap-4">
+      <span className="mt-4 text-sm opacity-30">Video Reviews</span>
+      <div className="mt-1 flex w-full items-start gap-4">
         {videoUrls.length > 0 ? (
           videoUrls.slice(0, 4).map((url, i) => (
             <Link key={i} href={`/products/${id}?videoIndex=${i}`}>
-              <div className="relative rounded-md overflow-hidden h-64 w-42 bg-black/5 group">
+              <div className="group relative h-64 w-42 overflow-hidden rounded-md bg-black/5">
                 <video
                   src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${url}`}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                   preload="metadata"
                 />
               </div>
@@ -102,12 +102,12 @@ const ProductCard = ({
           ))
         ) : (
           <>
-            <div className="w-full mt-4 flex items-center justify-center">
+            <div className="mt-4 flex w-full items-center justify-center">
               <span>No video reviews yet...</span>
               <h1>Be the first person to review this product</h1>
               <Link
                 href={`/products/${id}/add-review`}
-                className="py-5 px-4 border-blue-500 rounded-full text-blue-500"
+                className="rounded-full border-blue-500 px-4 py-5 text-blue-500"
               >
                 Add a Review
               </Link>

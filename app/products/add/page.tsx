@@ -10,10 +10,10 @@ export default async function AddProductPage({
   return (
     <div className="min-h-screen p-8">
       {searchParams.success && (
-        <p className="text-green-500 mb-4">{searchParams.success}</p>
+        <p className="mb-4 text-green-500">{searchParams.success}</p>
       )}
       {searchParams.error && (
-        <p className="text-red-500 mb-4">{searchParams.error}</p>
+        <p className="mb-4 text-red-500">{searchParams.error}</p>
       )}
 
       <Suspense fallback={<p>Loading form…</p>}>

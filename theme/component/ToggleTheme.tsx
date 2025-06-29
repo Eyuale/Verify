@@ -14,13 +14,13 @@ export default function ToggleTheme() {
 
   return (
     <button
-      className="w-8 h-8 flex items-center justify-center cursor-pointer dark:hover:bg-white/10 rounded-full hover:bg-black/5"
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10"
       onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
     >
       {resolvedTheme === "dark" ? (
-        <Moon className="dark:text-white/80 text-blue-500  text-sm" size={16} />
+        <Moon className="text-sm text-blue-500 dark:text-white/80" size={16} />
       ) : (
-        <Sun className="dark:text-white/80  text-blue-500 " size={16} />
+        <Sun className="text-blue-500 dark:text-white/80" size={16} />
       )}
     </button>
   );

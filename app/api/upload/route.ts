@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     console.error("Error generating signed URL", error);
     return NextResponse.json(
       { error: "Error generating signed URL" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

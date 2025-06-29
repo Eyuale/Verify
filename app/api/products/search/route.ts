@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   if (!query && !category) {
     return NextResponse.json(
       { success: false, error: "Search query or category must be provided." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     console.error("GET /api/products/search error:", err);
     return NextResponse.json(
       { success: false, error: "Server error while searching for products." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

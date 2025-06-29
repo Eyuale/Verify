@@ -2,7 +2,7 @@ import React from "react";
 
 const SearchArea = () => {
   return (
-    <div className="w-72 h-8 border border-black/10 rounded-full">
+    <div className="h-8 w-72 rounded-full border border-black/10">
       <input
         type="text"
         placeholder="Search for products"

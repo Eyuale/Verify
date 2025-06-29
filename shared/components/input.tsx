@@ -31,10 +31,10 @@ const Input = ({
   onChange,
 }: T_INPUT) => {
   return (
-    <div className="w-full space-y-2 flex flex-col">
+    <div className="flex w-full flex-col space-y-2">
       <label htmlFor={name} className="text-sm">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="ml-1 text-red-500">*</span>}
       </label>
 
       {isTextArea ? (
@@ -46,7 +46,7 @@ const Input = ({
           maxLength={maxLength}
           value={value}
           onChange={onChange}
-          className="bg-black/5 rounded-md dark:bg-white/5 p-2 text-sm min-h-[100px] resize-y"
+          className="min-h-[100px] resize-y rounded-md bg-black/5 p-2 text-sm dark:bg-white/5"
         />
       ) : (
         <input
@@ -60,12 +60,12 @@ const Input = ({
           list={list} // ← PASS THROUGH
           value={value}
           onChange={onChange}
-          className="bg-black/5 rounded-md dark:bg-white/5 p-2 text-sm"
+          className="rounded-md bg-black/5 p-2 text-sm dark:bg-white/5"
         />
       )}
 
       {maxLength && (
-        <p className="text-xs text-gray-500 text-right">
+        <p className="text-right text-xs text-gray-500">
           {String(value).length}/{maxLength} characters
         </p>
       )}

@@ -9,7 +9,7 @@ const ReviewSchema = new Schema(
     videoUrl: { type: String },
     createdAt: { type: Date, default: Date.now },
   },
-  { _id: true } // each review gets its own ObjectId
+  { _id: true }, // each review gets its own ObjectId
 );
 
 // — Product schema now includes an array of reviews
@@ -26,7 +26,7 @@ const ProductSchema = new Schema(
     userId: { type: String, required: true },
     reviews: { type: [ReviewSchema], default: [] },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Re-use compiled model if it exists (helps with hot reload in dev)

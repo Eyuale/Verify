@@ -41,7 +41,7 @@ const StarRatingInput: React.FC<StarRatingInputProps> = ({
     <div className="space-y-2">
       <label className="block text-sm">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="ml-1 text-red-500">*</span>}
       </label>
       <div className="flex items-center">
         {[...Array(maxRating)].map((_, index) => {
@@ -52,7 +52,7 @@ const StarRatingInput: React.FC<StarRatingInputProps> = ({
               key={ratingValue}
               className={`cursor-pointer transition-colors duration-200 ${
                 ratingValue <= displayRating
-                  ? "text-yellow-400 fill-yellow-400"
+                  ? "fill-yellow-400 text-yellow-400"
                   : "text-gray-300"
               }`}
               size={24}
@@ -66,7 +66,7 @@ const StarRatingInput: React.FC<StarRatingInputProps> = ({
       <input type="hidden" name={name} value={rating} required={required} />
 
       {required && rating === 0 && (
-        <p className="text-red-500 text-xs mt-1">Please select a rating.</p>
+        <p className="mt-1 text-xs text-red-500">Please select a rating.</p>
       )}
     </div>
   );

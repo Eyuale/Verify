@@ -10,9 +10,9 @@ const ClientWrapper = ({ children }: { children: ReactNode }) => {
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   return (
-    <div className="flex h-screen overflow-hidden relative w-full bg-white text-black/90 dark:bg-[#151314] dark:text-[#dfd7cc]">
+    <div className="relative flex h-screen w-full overflow-hidden bg-white text-black/90 dark:bg-[#151314] dark:text-[#dfd7cc]">
       <Sidebar isOpen={isSidebarOpen} />
-      <div className="flex-1 max-h-screen overflow-y-scroll">
+      <div className="max-h-screen flex-1 overflow-y-scroll">
         <Navbar toggleSidebar={toggleSidebar} />
         {children}
       </div>

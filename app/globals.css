@@ -14,10 +14,10 @@ body {
   width: 0;
 }
 
-.cl-userButtonPopoverCard .cl-popoverBox .cl-userButton-popover{
+.cl-userButtonPopoverCard .cl-popoverBox .cl-userButton-popover {
   font-size: 24px;
 }
 
-.cl-userPreview .cl-userPreview__userButton{
+.cl-userPreview .cl-userPreview__userButton {
   background: red;
 }

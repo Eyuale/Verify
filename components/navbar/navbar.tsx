@@ -11,12 +11,15 @@ interface NavbarProps {
 
 export default function Navbar({ toggleSidebar }: NavbarProps) {
   return (
-    <nav className="w-full h-14 flex items-center justify-between fixed top-0 left-0 px-4 bg-white dark:bg-[#151314] border-b border-black/10 dark:border-white/10 z-50">
+    <nav className="fixed top-0 left-0 z-50 flex h-14 w-full items-center justify-between bg-white px-4 dark:bg-[#151314]">
       <div className="flex items-center gap-2">
-        <div onClick={toggleSidebar}>
+        <div
+          onClick={toggleSidebar}
+          className="cursor-pointer rounded-md p-2 hover:bg-black/5 dark:hover:bg-white/10"
+        >
           <Menu size={16} />
         </div>
-        <h3 className="font-medium tracking-tight flex items-center gap-0.5">
+        <h3 className="flex items-center gap-0.5 font-medium tracking-tight">
           <Link href={"/"}>Verify</Link>
           {/* <BadgeCheck
             size={20}
@@ -30,7 +33,7 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
             type="button"
             label="Write"
             icon={<PenLineIcon size={14} strokeWidth={3} />}
-            className="text-blue-800/90 bg-blue-50 dark:text-[#a8c8fb] dark:bg-blue-50/10 gap-1 pr-5"
+            className="gap-1 bg-blue-50 pr-5 text-blue-800/90 dark:bg-blue-50/10 dark:text-[#a8c8fb]"
           />
         </Link>
         <SignedOut>
@@ -38,7 +41,7 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
             <Button
               type="button"
               label="Log In"
-              className="bg-black/85 dark:bg-white/5 text-white/90"
+              className="bg-black/85 text-white/90 dark:bg-white/5"
             />
           </Link>
         </SignedOut>

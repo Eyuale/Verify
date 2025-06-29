@@ -1,7 +1,5 @@
 "use client";
 
-import Navbar from "@/components/navbar/navbar";
-import Sidebar from "@/components/sidebar/sidebar";
 import ClientWrapper from "@/shared/wrapper/ClientWrapper";
 import { ThemeProvider } from "next-themes";
 export default function Providers({ children }: { children: React.ReactNode }) {

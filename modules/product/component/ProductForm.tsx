@@ -91,7 +91,7 @@ export default function ProductForm() {
       setIsSearching(true);
       try {
         const response = await fetch(
-          `/api/products/search?q=${encodeURIComponent(query)}`
+          `/api/products/search?q=${encodeURIComponent(query)}`,
         );
         if (!response.ok) throw new Error("Search failed");
         const data = await response.json();
@@ -103,7 +103,7 @@ export default function ProductForm() {
         setIsSearching(false);
       }
     }, 300), // 300ms debounce delay
-    []
+    [],
   );
 
   useEffect(() => {
@@ -151,7 +151,7 @@ export default function ProductForm() {
    * @description Updates form data state on input changes.
    */
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, type, value } = e.target;
     if (type === "file") {
@@ -274,9 +274,9 @@ export default function ProductForm() {
 
   // Main Render Logic
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center py-16 md:py-32">
+    <div className="flex h-full w-full flex-col items-center justify-center py-16 md:py-32">
       <form onSubmit={handleSubmit} className="w-full max-w-[600px] space-y-6">
-        <h1 className="text-2xl font-medium mb-8 text-center">
+        <h1 className="mb-8 text-center text-2xl font-medium">
           {step === 1
             ? "Find a Product to Review"
             : `Reviewing: ${formData.product_name}`}
@@ -305,12 +305,12 @@ export default function ProductForm() {
             </div>
 
             {searchResults.length > 0 && (
-              <div className="border rounded-md max-h-60 overflow-y-auto">
+              <div className="max-h-60 overflow-y-auto rounded-md border">
                 {searchResults.map((product) => (
                   <div
                     key={product._id.toString()}
                     onClick={() => handleSelectProduct(product)}
-                    className="p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                    className="cursor-pointer border-b p-3 last:border-b-0 hover:bg-gray-100"
                   >
                     <p className="font-semibold">{product.product_name}</p>
                     <p className="text-sm text-gray-600">
@@ -321,8 +321,8 @@ export default function ProductForm() {
               </div>
             )}
 
-            <div className="text-center pt-4">
-              <p className="opacity-60 text-sm mb-2">Can't find the product?</p>
+            <div className="pt-4 text-center">
+              <p className="mb-2 text-sm opacity-60">Can't find the product?</p>
               <Button
                 type="button"
                 label="Create a New Product Profile"
@@ -335,11 +335,11 @@ export default function ProductForm() {
 
         {/* STEP 2: FILL IN REVIEW AND/OR PRODUCT DETAILS */}
         {step === 2 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="animate-fade-in space-y-6">
             {isNewProduct ? (
               // Form for a NEW product
               <>
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-3">
                   <Info size={16} className="text-blue-600" />
                   <p className="text-sm text-blue-700">
                     You're creating a new product profile. Please fill in all
@@ -421,7 +421,7 @@ export default function ProductForm() {
             ) : (
               // Form for an EXISTING product
               <>
-                <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                <div className="rounded-md border border-green-200 bg-green-50 p-3">
                   <p className="font-semibold">
                     {selectedProduct?.product_name}
                   </p>
@@ -466,12 +466,12 @@ export default function ProductForm() {
                 <video
                   src={videoPreviewUrl}
                   controls
-                  className="w-full mt-2 rounded-md"
+                  className="mt-2 w-full rounded-md"
                 />
               </div>
             )}
 
-            {error && <p className="text-red-500 text-center">{error}</p>}
+            {error && <p className="text-center text-red-500">{error}</p>}
 
             <div className="flex gap-4 pt-4">
               <Button
@@ -494,12 +494,12 @@ export default function ProductForm() {
                     <SendHorizontal size={14} />
                   )
                 }
-                className="bg-blue-600 text-white flex-grow"
+                className="flex-grow bg-blue-600 text-white"
                 disabled={isSubmitting || !isUserLoaded}
               />
             </div>
             {!isUserLoaded && (
-              <p className="text-sm text-center text-gray-500">
+              <p className="text-center text-sm text-gray-500">
                 Loading user session...
               </p>
             )}

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
   if (!userId) {
     return NextResponse.json(
       { success: false, error: "Unauthorized" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (userId !== reviewData.userId) {
       return NextResponse.json(
         { success: false, error: "User ID mismatch." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -75,13 +75,13 @@ export async function POST(request: NextRequest) {
       product = await Product.findByIdAndUpdate(
         productId,
         { $push: { reviews: reviewData } }, // $push adds the item to the array
-        { new: true, runValidators: true } // 'new: true' returns the updated document
+        { new: true, runValidators: true }, // 'new: true' returns the updated document
       );
 
       if (!product) {
         return NextResponse.json(
           { success: false, error: "Product not found." },
-          { status: 404 }
+          { status: 404 },
         );
       }
     }
@@ -89,13 +89,13 @@ export async function POST(request: NextRequest) {
     const safeProduct = JSON.parse(JSON.stringify(product));
     return NextResponse.json(
       { success: true, product: safeProduct },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err: any) {
     console.error("POST /api/products error:", err);
     return NextResponse.json(
       { success: false, error: err.message || "Failed to process request." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
