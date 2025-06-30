@@ -1,15 +1,46 @@
+// navbar.tsx
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Button from "@/shared/components/button";
 import ToggleTheme from "@/theme/component/ToggleTheme";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Menu, PenLineIcon } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import { Input } from "@/components/ui/input"
+import Image from "next/image";
 
 interface NavbarProps {
   toggleSidebar: () => void;
 }
 
 export default function Navbar({ toggleSidebar }: NavbarProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<{ product_name: string, imageUrl: string, _id: string }[]>([]);
+  const [isMounted, setIsMounted] = useState(false); // New state for client-side mount
+
+  useEffect(() => {
+    setIsMounted(true); // Set to true once component mounts on client
+
+    const fetchProducts = async () => {
+      const res = await fetch(`/api/products/search?query=${searchQuery}`);
+      const data = await res.json();
+      setProducts(data.products || []);
+    };
+
+    if (searchQuery) {
+      fetchProducts();
+    } else {
+      setProducts([]);
+    }
+  }, [searchQuery]);
+
+  // Function to handle clearing search query and products when a link is clicked
+  const handleLinkClick = () => {
+    setSearchQuery(""); // Clear the search query
+    setProducts([]);    // Clear the products
+  };
+
   return (
     <nav className="fixed top-0 left-0 z-50 flex h-14 w-full items-center justify-between bg-white px-4 dark:bg-[#151314]">
       <div className="flex items-center gap-2">
@@ -21,11 +52,33 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
         </div>
         <h3 className="flex items-center gap-0.5 font-medium tracking-tight">
           <Link href={"/"}>Verify</Link>
-          {/* <BadgeCheck
-            size={20}
-            className="bg-blue-50 dark:bg-transparent text-blue-600 overflow-hidden rounded-full"
-          /> */}
         </h3>
+      </div>
+      <div>
+        <Input placeholder="search product" onChange={(e) => setSearchQuery(e.target.value)} value={searchQuery}/>
+        {
+          searchQuery && products && products.length > 0 ?
+            (
+              <div className="absolute top-16 left-1/2 bg-[#eae5e5] shadow-sm dark:bg-black/10 rounded-lg p-4 w-[50%] transform -translate-x-1/2">
+                {products.map((product, index) => {
+                    console.log(products)
+                  return (
+                    <Link
+                      href={`/products/${product._id}`}
+                      key={index}
+                      className="w-full flex items-center gap-2 py-2"
+                      onClick={handleLinkClick} // Call handleLinkClick when a product link is clicked
+                    >
+                      <img src={product?.imageUrl} className="w-12 h-12 rounded-md object-cover" alt="product image"/>
+                      {product?.product_name}
+                    </Link>
+                  )
+                })}
+              </div>
+            )
+            :
+            searchQuery && products.length === 0 ? <div>No products found.</div> : null
+        }
       </div>
       <div className="flex h-full items-center gap-4">
         <Link href="/products/add">
@@ -36,18 +89,22 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
             className="gap-1 bg-blue-50 pr-5 text-blue-800/90 dark:bg-blue-50/10 dark:text-[#a8c8fb]"
           />
         </Link>
-        <SignedOut>
-          <Link href="/sign-in">
-            <Button
-              type="button"
-              label="Log In"
-              className="bg-black/85 text-white/90 dark:bg-white/5"
-            />
-          </Link>
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+        {isMounted && ( // Conditionally render Clerk components after mount
+          <>
+            <SignedOut>
+              <Link href="/sign-in">
+                <Button
+                  type="button"
+                  label="Log In"
+                  className="bg-black/85 text-white/90 dark:bg-white/5"
+                />
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </>
+        )}
         <ToggleTheme />
       </div>
     </nav>
