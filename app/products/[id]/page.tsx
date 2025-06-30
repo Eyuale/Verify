@@ -1,4 +1,3 @@
-import ProductCard from "@/modules/product/ProductCard"
 import Link from "next/link"
 
 type TReview = {

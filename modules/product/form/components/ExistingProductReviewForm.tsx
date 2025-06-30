@@ -31,6 +31,7 @@ const ExistingProductReviewForm = ({ product }: { product: TProduct }) => {
     // imageUrl: "", // Removed as it's not in the Review schema for this form
   });
 
+  console.log("Selected Product for Review:", product);
   const handleClickNext = () => {
     setStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
   };

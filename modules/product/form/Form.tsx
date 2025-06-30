@@ -13,11 +13,7 @@ import { LucideSearch, Loader2 } from "lucide-react"; // Import Loader2 from luc
 const Form = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<TProduct[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<{
-    product_name: string;
-    imageUrl: string;
-    _id: string;
-  } | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<TProduct | null>(null); // Changed type to TProduct
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [noResultsFoundAfterSearch, setNoResultsFoundAfterSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false); // <--- New state for loading indicator
@@ -65,7 +61,7 @@ const Form = () => {
 
   const handleProductSelect = (product: TProduct) => {
     setSelectedProduct(product);
-    setSearchQuery("");
+    setSearchQuery(""); // Clear search query after selecting a product
     setNoResultsFoundAfterSearch(false);
   };
 
@@ -73,7 +69,16 @@ const Form = () => {
     setShowNewProductForm(true);
     setProducts([]);
     setNoResultsFoundAfterSearch(false);
+    setSelectedProduct(null); // Ensure no product is selected when creating new
   };
+
+  const handleProductCreated = (newProduct: TProduct) => {
+    setSelectedProduct(newProduct); // Set the newly created product as selected
+    setShowNewProductForm(false); // Hide the new product form
+    setSearchQuery(""); // Clear search query
+    setNoResultsFoundAfterSearch(false); // Clear no results message
+  };
+
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center py-16 md:py-32">
@@ -145,14 +150,15 @@ const Form = () => {
         {selectedProduct && (
           <ExistingProductReviewForm
             product={selectedProduct}
-            setSearchQuery={setSearchQuery}
+            // setSearchQuery={setSearchQuery} // This prop is not expected by ExistingProductReviewForm in the provided code. Remove if not needed.
           />
         )}
 
         {showNewProductForm && (
           <NewProductCreationForm
             initialProductName={searchQuery}
-            setSearchQuery={setSearchQuery}
+            onProductCreated={handleProductCreated} // Pass the new handler
+            // setSearchQuery={setSearchQuery} // This prop is not expected by NewProductCreationForm in the provided code. Remove if not needed.
           />
         )}
       </div>

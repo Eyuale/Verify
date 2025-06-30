@@ -12,14 +12,18 @@ import {
 import { categories } from "@/lib/category";
 import Button from "@/shared/components/button";
 import { ArrowLeft, ArrowRight, Loader2, Pen } from "lucide-react";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation"; // Remove this line
+import { TProduct } from "@/lib/types"; // Import TProduct if not already imported
+
 // Total number of steps in the form
 const TOTAL_STEPS = 4;
 
 const NewProductCreationForm = ({
   initialProductName,
+  onProductCreated, // Add this new prop
 }: {
   initialProductName: string;
+  onProductCreated: (product: TProduct) => void; // Define its type
 }) => {
   const [step, setStep] = useState(1);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -84,11 +88,15 @@ const NewProductCreationForm = ({
     });
 
     if (res.ok) {
-      redirect("/");
-      setIsSubmitting(false);
+      const { newProduct }: { newProduct: TProduct} = await res.json(); // Get the created product data
+      console.log(newProduct)
+      onProductCreated(newProduct); // Call the callback with the new product
+      // No redirect here
     } else {
       console.log(res);
+      // Handle error, e.g., show an error message to the user
     }
+    setIsSubmitting(false); // Ensure submission state is reset in finally or after success/error
   };
 
   return (
