@@ -8,12 +8,16 @@ type T_INPUT = {
   label?: string;
   type?: string;
   placeholder?: string;
-  name: string;
+  name?: string;
   required?: boolean;
   isTextArea?: boolean;
   maxLength?: number;
+  defaultValue?: string;
   list?: string; // ← NEW
   value?: string | number;
+  onKeyDown?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   onChange?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 };
 
@@ -28,7 +32,9 @@ const Input = ({
   maxLength,
   list, // ← NEW
   value,
+  onKeyDown,
   onChange,
+  defaultValue
 }: T_INPUT) => {
   return (
     <div className="flex w-full flex-col space-y-2">
@@ -50,6 +56,7 @@ const Input = ({
         />
       ) : (
         <input
+          defaultValue={defaultValue}
           accept={accept}
           id={name}
           type={type}
@@ -61,6 +68,7 @@ const Input = ({
           value={value}
           onChange={onChange}
           className="rounded-md bg-black/5 p-2 text-sm dark:bg-white/5"
+          onKeyDown={onKeyDown}
         />
       )}
 

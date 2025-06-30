@@ -1,59 +1,59 @@
-// app/products/[id]/page.tsx
-import Link from "next/link";
-import Button from "@/shared/components/button";
-import { ArrowLeft } from "lucide-react";
-import { connectToDatabase } from "@/lib/mongoose";
-import { Product } from "@/models/productSchema";
-import ProductVideoFeed from "@/modules/product/component/ProductVideoFeed";
+import ProductCard from "@/modules/product/ProductCard"
+import Link from "next/link"
 
-export default async function ProductDetailsPage({
-  params,
+type TReview = {
+  userId: string,
+  rating: number,
+  description: string,
+  videoUrl: string,
+  _id: string,
+  createdAt: string,
+}
+
+const page = async ({
+  params
 }: {
-  params: { id: string };
-}) {
-  // Connect and fetch
-  await connectToDatabase();
-  const raw = await Product.findById(params.id).lean();
-  if (!raw) {
-    return <div className="p-8">Product not found.</div>;
-  }
-  const product = JSON.parse(JSON.stringify(raw));
+  params: Promise<{ id: string }>
+}) => {
+  const { id } = await params
 
-  // Gather video URLs from embedded reviews
-  const videoUrls: string[] = (product.reviews || [])
-    .map((r: any) => r.videoUrl)
-    .filter((v: string) => !!v);
+  const Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`)
+  const { product } = await Response.json()
+  // const videoUrls = await product.reviews.map((review: TReview) => review.videoUrl)
+  const reviews = await product.reviews
+
+
+  console.log(product)
 
   return (
-    <div className="grid min-h-screen w-full grid-cols-2 pt-12">
-      {/* Left: scrollable feed */}
-      <div className="h-full w-full pl-2">
-        <ProductVideoFeed videoUrls={videoUrls} posterUrl={product.imageUrl} />
-      </div>
+    <div className="p-32">
 
-      {/* Right: product details */}
-      <div className="flex-1 overflow-y-auto p-8">
-        <Link href="/">
-          <Button
-            type="button"
-            label="Back"
-            icon={<ArrowLeft size={16} className="mr-2" />}
-            className="bg-blue-50/70 pr-6 text-blue-600"
-          />
-        </Link>
-
-        <div className="mt-6 space-y-4">
-          <h1 className="text-2xl font-semibold">{product.product_name}</h1>
-          <p className="text-gray-700">{product.description}</p>
-          <p className="text-blue-600">Price: ${product.price}</p>
-          {product.company_name && (
-            <p className="text-sm text-gray-500">
-              Sold by {product.company_name}
-            </p>
-          )}
-          {/* Additional details or reviews summary can go here */}
-        </div>
-      </div>
+      <span>{product.product_name}</span>
+      <img src={product.imageUrl} className="w-24 h-24 object-contain" />
+      
+      {/* <ProductCard 
+        id={product._id}
+        description={product.description}
+        imageUrl={product.imageUrl}
+        price={product.price}
+        product_name={product.product_name}
+        company_name={product.company_name}
+        averageRating={1}
+        reviewCount={13}
+        key={product._id}
+      /> */}
+      {reviews.map((review: TReview, index: number) => {
+        return (
+          <Link href={`/products/${product._id}/reviews/${review._id}`} key={index}>
+            <div>
+              <video src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${review.videoUrl}`} controls />
+              <p>{review.description}</p>
+            </div>
+          </Link>
+        )
+      })}
     </div>
-  );
+  )
 }
+
+export default page

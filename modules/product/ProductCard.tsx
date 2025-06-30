@@ -14,7 +14,7 @@ type T_PRODUCT = {
   imageUrl: string;
   price: number;
   company_name?: string;
-  videoUrls: string[];
+  videoUrls?: string[];
   averageRating: number;
   reviewCount: number;
 };
@@ -37,7 +37,7 @@ const ProductCard = ({
 
   return (
     <div
-      className="flex h-auto w-full flex-col rounded-lg border border-black/5 p-2.5 dark:border-white/5"
+      className="p-30 flex h-auto w-full flex-col rounded-lg border border-black/5 p-2.5 dark:border-white/5"
       onClick={() => router.push(`/products/${id}`)}
     >
       {/* Top section */}
@@ -85,10 +85,11 @@ const ProductCard = ({
         </div>
       </div>
 
-      {/* Video section */}
+      {/* Video section
       <span className="mt-4 text-sm opacity-30">Video Reviews</span>
       <div className="mt-1 flex w-full items-start gap-4">
-        {videoUrls.length > 0 ? (
+        {
+        videoUrls.length > 0 ? (
           videoUrls.slice(0, 4).map((url, i) => (
             <Link key={i} href={`/products/${id}?videoIndex=${i}`}>
               <div className="group relative h-64 w-42 overflow-hidden rounded-md bg-black/5">
@@ -114,7 +115,7 @@ const ProductCard = ({
             </div>
           </>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
