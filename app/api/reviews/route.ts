@@ -61,3 +61,22 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET(){
+  await connectToDatabase()
+
+  try{
+    const reviews = await Review.find({})
+
+    console.log(reviews)
+
+    return NextResponse.json(
+      {reviews},
+      { status: 200}
+    )
+  }catch(err){
+    return NextResponse.json({
+      success: false, error: err
+    }, {status: 500})
+  }
+}

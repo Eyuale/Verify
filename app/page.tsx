@@ -1,81 +1,94 @@
 // app/page.tsx
+
+import { TReviews } from "@/lib/types";
 import Link from "next/link";
-import { connectToDatabase } from "@/lib/mongoose";
-import { Product } from "@/models/productSchema";
-import ProductCard from "@/modules/product/ProductCard";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: { success?: string; error?: string };
-}) {
-  // 1. Read any flash messages
-  const { success, error } = searchParams;
+export default async function Home() {
+  let review: TReviews[] = [];
+  const productsMap = new Map<string, TProduct>(); // To store products by their ID
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews`, {
+      cache: "no-store",
+    });
 
-  // 2. Fetch products with embedded reviews
-  await connectToDatabase();
-  const rawProducts = await Product.find(
-    {},
-    {
-      product_name: 1,
-      description: 1,
-      imageUrl: 1,
-      price: 1,
-      company_name: 1,
-      reviews: 1,
-    },
-  ).lean();
-  const products = JSON.parse(JSON.stringify(rawProducts));
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    const reviews = await res.json();
 
-  // 3. Render
+    review = await reviews.reviews;
+
+    const productIds = new Set<string>();
+    reviews.forEach((review) => {
+      if (review.productId) {
+        productIds.add(review.productId);
+      }
+    });
+
+    // 3. Fetch details for each unique product ID
+    // We'll use Promise.all to fetch all products concurrently
+    const productFetchPromises = Array.from(productIds).map(
+      async (productId) => {
+        try {
+          const resProduct = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`,
+            {
+              cache: "no-store",
+            },
+          );
+
+          if (!resProduct.ok) {
+            console.warn(
+              `Could not fetch product with ID: ${productId}. Status: ${resProduct.status}`,
+            );
+            return null; // Return null if product fetch fails
+          }
+          const productData = await resProduct.json();
+          return productData.product as TProduct; // Assuming the product data is under 'product' key
+        } catch (productError) {
+          console.error(`Error fetching product ${productId}:`, productError);
+          return null; // Return null on error
+        }
+      },
+    );
+
+    // Wait for all product fetches to complete
+    const fetchedProducts = await Promise.all(productFetchPromises);
+
+    // Populate the productsMap for easy lookup
+    fetchedProducts.forEach((product) => {
+      if (product) {
+        productsMap.set(product._id, product);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
   return (
-    <div className="mt-32 flex min-h-screen w-full flex-col items-center p-4">
-      {success && <p className="mb-4 text-green-500">{success}</p>}
-      {error && <p className="mb-4 text-red-500">{error}</p>}
-
-      {products.length === 0 ? (
-        <p className="text-gray-500">
-          No products found. <Link href="/new">Add a product</Link> to start
-          reviewing!
-        </p>
-      ) : (
-        <div className="grid w-full max-w-4xl grid-cols-1 gap-4">
-          {products.map((product: any) => {
-            const pid = product._id;
-            const reviews = Array.isArray(product.reviews)
-              ? product.reviews
-              : [];
-
-            // compute videoUrls, averageRating, reviewCount
-            const videoUrls = reviews
-              .map((r: any) => r.videoUrl)
-              .filter(Boolean) as string[];
-            const total = reviews.reduce(
-              (sum: number, r: any) => sum + (r.rating || 0),
-              0,
-            );
-            const count = reviews.length;
-            const averageRating = count
-              ? parseFloat((total / count).toFixed(1))
-              : 0;
-
-            return (
-              <ProductCard
-                key={pid}
-                id={pid}
-                product_name={product.product_name}
-                description={product.description}
-                imageUrl={product.imageUrl}
-                price={product.price}
-                company_name={product.company_name}
-                videoUrls={videoUrls}
-                averageRating={averageRating}
-                reviewCount={count}
+    <div className="pt-32">
+      <h1>Welcome</h1>
+      <div className="flex flex-row gap-2">
+        {review.map(async (review, index) => {
+          return (
+            <Link
+              href={`/products/${review.productId}/reviews/${review._id}`}
+              key={index}
+            >
+              <video
+                src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${review.videoUrl}`}
+                controls
+                width={100}
+                height={200}
               />
-            );
-          })}
-        </div>
-      )}
+              <div>
+                {/* <img src={} />
+                <p>{}</p> */}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

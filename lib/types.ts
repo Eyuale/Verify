@@ -1,6 +1,7 @@
 import { Types } from "mongoose"
 
 export type TReviews = {
+    _id: Types.ObjectId | string,
     productId: Types.ObjectId | string,
     comment?: string,
     userId: string,
