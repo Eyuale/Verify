@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider>  
       <html lang="en" suppressHydrationWarning>
         <head>
           <FontAwesomeConfig />

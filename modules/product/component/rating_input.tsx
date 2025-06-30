@@ -6,7 +6,7 @@ import { Star } from "lucide-react";
 
 interface StarRatingInputProps {
   name: string;
-  label: string;
+  label?: string;
   rating: number;
   onRatingChange: (rating: number) => void;
   maxRating?: number;

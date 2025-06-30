@@ -23,7 +23,7 @@ export async function GET(req: NextRequest){
         { description: { $regex: query, $options: 'i' } },
         { category: { $regex: query, $options: 'i' } },
       ],
-    });
+    }).lean();
 
     return NextResponse.json(
       { success: true, products},

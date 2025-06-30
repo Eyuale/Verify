@@ -8,7 +8,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Menu, PenLineIcon } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input"
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -18,6 +18,7 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<{ product_name: string, imageUrl: string, _id: string }[]>([]);
   const [isMounted, setIsMounted] = useState(false); // New state for client-side mount
+  const router = useRouter()
 
   useEffect(() => {
     setIsMounted(true); // Set to true once component mounts on client
@@ -41,6 +42,14 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
     setProducts([]);    // Clear the products
   };
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      console.log(e.key)
+    if (e.key === 'Enter' && searchQuery) {
+      handleLinkClick(); // Clear suggestions before navigating
+      router.push(`/result?search_query=${searchQuery}`);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 z-50 flex h-14 w-full items-center justify-between bg-white px-4 dark:bg-[#151314]">
       <div className="flex items-center gap-2">
@@ -55,7 +64,12 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
         </h3>
       </div>
       <div>
-        <Input placeholder="search product" onChange={(e) => setSearchQuery(e.target.value)} value={searchQuery}/>
+        <Input 
+          placeholder="search product" 
+          onChange={(e) => setSearchQuery(e.target.value)} 
+          value={searchQuery}
+          onKeyDown={handleKeyDown} // Add onKeyDown event listener  
+        />
         {
           searchQuery && products && products.length > 0 ?
             (

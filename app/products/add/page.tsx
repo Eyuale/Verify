@@ -1,5 +1,6 @@
 // app/products/add/page.tsx
 import ProductForm from "@/modules/product/component/ProductForm";
+import Form from "@/modules/product/form/Form";
 import { Suspense } from "react";
 
 export default async function AddProductPage({
@@ -17,7 +18,7 @@ export default async function AddProductPage({
       )}
 
       <Suspense fallback={<p>Loading form…</p>}>
-        <ProductForm searchParams={searchParams} />
+        <Form />
       </Suspense>
     </div>
   );

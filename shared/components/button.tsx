@@ -4,7 +4,7 @@ import React from "react";
 type T_BUTTON = {
   className?: string;
   onClick?: () => void;
-  label: string;
+  label?: string;
   icon?: React.ReactNode;
   type: "button" | "submit" | "reset";
   disabled?: boolean; // Added disabled prop

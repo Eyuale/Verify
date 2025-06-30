@@ -1,4 +1,14 @@
 import ProductCard from "@/modules/product/ProductCard"
+import Link from "next/link"
+
+type TReview = {
+  userId: string,
+  rating: number,
+  description: string,
+  videoUrl: string,
+  _id: string,
+  createdAt: string,
+}
 
 const page = async ({
   params
@@ -9,7 +19,8 @@ const page = async ({
 
   const Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`)
   const { product } = await Response.json()
-
+  // const videoUrls = await product.reviews.map((review: TReview) => review.videoUrl)
+  const reviews = await product.reviews
 
 
   console.log(product)
@@ -31,6 +42,16 @@ const page = async ({
         reviewCount={13}
         key={product._id}
       /> */}
+      {reviews.map((review: TReview, index: number) => {
+        return (
+          <Link href={`/products/${product._id}/reviews/${review._id}`} key={index}>
+            <div>
+              <video src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${review.videoUrl}`} controls />
+              <p>{review.description}</p>
+            </div>
+          </Link>
+        )
+      })}
     </div>
   )
 }
