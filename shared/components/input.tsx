@@ -4,6 +4,7 @@
 import React, { ChangeEvent } from "react";
 
 type T_INPUT = {
+  disabled? : boolean;
   accept?: string;
   label?: string;
   type?: string;
@@ -22,6 +23,7 @@ type T_INPUT = {
 };
 
 const Input = ({
+  disabled,
   accept,
   label,
   type = "text",
@@ -56,6 +58,7 @@ const Input = ({
         />
       ) : (
         <input
+         disabled={disabled}
           defaultValue={defaultValue}
           accept={accept}
           id={name}

@@ -85,12 +85,11 @@ const ProductCard = ({
         </div>
       </div>
 
-      {/* Video section
       <span className="mt-4 text-sm opacity-30">Video Reviews</span>
       <div className="mt-1 flex w-full items-start gap-4">
         {
-        videoUrls.length > 0 ? (
-          videoUrls.slice(0, 4).map((url, i) => (
+        (videoUrls?.length ?? 0) > 0 ? (
+          (videoUrls ?? []).slice(0, 4).map((url, i) => (
             <Link key={i} href={`/products/${id}?videoIndex=${i}`}>
               <div className="group relative h-64 w-42 overflow-hidden rounded-md bg-black/5">
                 <video
@@ -115,7 +114,7 @@ const ProductCard = ({
             </div>
           </>
         )}
-      </div> */}
+      </div>
     </div>
   );
 };

@@ -18,12 +18,10 @@ const page = async ({
   const { id } = await params
 
   const Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`)
-  const { product } = await Response.json()
-  // const videoUrls = await product.reviews.map((review: TReview) => review.videoUrl)
-  const reviews = await product.reviews
+  const { product, reviews } = await Response.json();
 
 
-  console.log(product)
+  console.log(product, reviews)
 
   return (
     <div className="p-32">
@@ -41,6 +39,7 @@ const page = async ({
         averageRating={1}
         reviewCount={13}
         key={product._id}
+        videoUrls={reviews.videoUrl}
       /> */}
       {reviews.map((review: TReview, index: number) => {
         return (
