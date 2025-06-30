@@ -1,4 +1,7 @@
+import { Types } from "mongoose"
+
 export type TReviews = {
+    productId: Types.ObjectId | string,
     comment?: string,
     userId: string,
     imageUrl?: string,
@@ -7,11 +10,12 @@ export type TReviews = {
     like?: number,
     accurate?: number,
     inaccurate?: number,
+    rating: number
     reviewDescription: string,
 }
 
 export type TProduct = {
-    _id: string,
+    _id: Types.ObjectId | string,
     product_name: string,
     description: string,
     imageUrl: string,
@@ -22,7 +26,7 @@ export type TProduct = {
     category: string,
     userId: string,
     ai_summary: string,
-    reviews: [TReviews],
+    reviews: (Types.ObjectId | string)[],
     webLink: string
 }
 

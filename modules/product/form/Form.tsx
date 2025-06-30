@@ -132,7 +132,7 @@ const Form = () => {
 
         {noResultsFoundAfterSearch && !showNewProductForm && !selectedProduct && (
           <div>
-            <p>No products found for "{searchQuery}".</p>
+            <p>No products found for &quot;{searchQuery}&quot;.</p>
             <button
               onClick={handleCreateNewProductClick}
               className="text-blue-600 hover:underline"
