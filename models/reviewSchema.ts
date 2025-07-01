@@ -28,11 +28,6 @@ const ReviewSchema = new Schema(
     inaccurate: { type: Number, default: 0 },
     comments: { type: [CommentSchema], required: false },
     createdAt: { type: Date, default: Date.now },
-    // Add this new field to store user IDs who liked the review
-    likedBy: {
-      type: [String], // Array of Clerk user IDs
-      default: [],
-    },
   },
   {
     timestamps: true,

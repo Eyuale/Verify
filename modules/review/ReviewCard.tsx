@@ -41,7 +41,7 @@ const formatTimeAgo = (dateString: string): string => {
   return Math.floor(seconds) + " seconds ago";
 };
 
-export default function ReviewCard({ review , user }: ReviewCardProps) {
+export default function ReviewCard({ review, user }: ReviewCardProps) {
   const reviewId = (review as any)._id; // Assuming _id exists on the review object
   const { userId: currentUserId } = useAuth(); // Get the current authenticated user's ID from Clerk
 
@@ -60,10 +60,8 @@ export default function ReviewCard({ review , user }: ReviewCardProps) {
         {/* Video Player component */}
         <VideoPlayer
           src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${review.videoUrl}`}
-          initialLikes={review.like || 0} // Pass the current like count from the review
-          reviewId={reviewId} // Pass the review's ID
-          currentUserId={currentUserId ?? null} // Pass the authenticated user's ID or null if undefined
-          isLikedInitially={isLikedInitially} // Pass whether the current user has liked it
+          reviewId={reviewId}
+          currentUserId={currentUserId ?? null}
         />
 
         {/* New Text Info Block - Below the video thumbnail */}
