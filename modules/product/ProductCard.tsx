@@ -1,11 +1,10 @@
 "use client"; // Required for using useState and onError handling
 
-import Link from "next/link";
-import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { PlayCircle } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type T_PRODUCT = {
   id: string;
@@ -24,8 +23,8 @@ const ProductCard = ({
   product_name,
   description,
   imageUrl,
-  price,
-  company_name,
+  // price,
+  // company_name,
   videoUrls,
   averageRating,
   reviewCount,

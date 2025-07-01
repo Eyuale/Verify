@@ -1,9 +1,9 @@
 // app/api/products/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongoose";
+import { TProduct, TReviews } from "@/lib/types"; // Make sure these are updated
 import { Product } from "@/models/productSchema";
 import { Review } from "@/models/reviewSchema";
-import { TProduct, TReviews } from "@/lib/types"; // Make sure these are updated
+import { NextRequest, NextResponse } from "next/server";
 
 // Correct the signature of the GET function
 export async function GET(

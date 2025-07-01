@@ -11,7 +11,7 @@ type TUser = {
   imageUrl: string;
   firstName: string | null;
 };
-1;
+
 export default async function Home() {
   let reviews: TReviews[] = [];
   const productsMap = new Map<string, TProduct>();
