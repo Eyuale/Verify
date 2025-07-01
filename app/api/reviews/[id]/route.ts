@@ -6,13 +6,14 @@ import { Review } from "@/models/reviewSchema";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await context.params;
   try {
     await connectToDatabase();
-    console.log("Backend - Fetching review with ID:", params.id);
+    console.log("Backend - Fetching review with ID:", id);
 
-    const review = await Review.findById(params.id).populate("productId");
+    const review = await Review.findById(id).populate("productId");
     console.log("Backend - Fetched review (after populate):", review);
 
     if (!review) {
