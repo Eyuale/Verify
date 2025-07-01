@@ -66,7 +66,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
       <div className="mt-2 grid w-full grid-cols-3 gap-4 md:grid-cols-4 lg:grid-cols-5">
         {reviews.map((review: TReviews, index: number) => {
           // Assuming TReviews has an _id property
-          const reviewId = (review as any)._id;
+          const reviewId = (review as TReviews)._id;
           return (
             <Link
               href={`/products/${product._id}/reviews/${reviewId}`}

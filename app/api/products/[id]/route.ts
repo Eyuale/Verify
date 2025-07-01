@@ -82,7 +82,7 @@ export async function PUT(
     for (const key of allowedKeys) {
       if (key in body) {
         // Ensure type compatibility when assigning
-        (updateFields as any)[key] = body[key]; 
+        (updateFields as Partial<TProduct>)[key as keyof TProduct] = body[key];
       }
     }
 

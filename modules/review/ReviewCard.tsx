@@ -2,8 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
 import VideoPlayer from "./components/videoplayer"; // Ensure this path is correct relative to ReviewCard.tsx
 import { TProduct, TReviews, TUser } from "@/lib/types";
 import { useAuth } from "@clerk/nextjs"; // Import useAuth to get the current user ID
@@ -43,7 +41,7 @@ const formatTimeAgo = (dateString: string): string => {
   return Math.floor(seconds) + " seconds ago";
 };
 
-export default function ReviewCard({ review, product, user }: ReviewCardProps) {
+export default function ReviewCard({ review , user }: ReviewCardProps) {
   const reviewId = (review as any)._id; // Assuming _id exists on the review object
   const { userId: currentUserId } = useAuth(); // Get the current authenticated user's ID from Clerk
 

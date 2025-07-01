@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Providers from "@/theme/ThemeProvider";
+import Providers from "@/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import FontAwesomeConfig from "./fontawesome";
 

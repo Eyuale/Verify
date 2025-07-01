@@ -12,7 +12,7 @@ const s3Client = new S3Client({
 });
 
 export async function POST(request: NextRequest) {
-  const { fileType, contentType } = await request.json();
+  const { contentType } = await request.json();
 
   // A more robust way to get the file extension
   const fileExtension = contentType.split("/")[1];

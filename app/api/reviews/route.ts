@@ -49,10 +49,10 @@ export async function POST(request: NextRequest) {
       { success: true, newReview, updatedProduct },
       { status: 201 },
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error creating review or updating product:", err);
     return NextResponse.json(
-      { success: false, error: err.message || "Internal Server Error" },
+      { success: false, error: err instanceof Error ? err.message : "Internal Server Error" },
       { status: 500 },
     );
   }
