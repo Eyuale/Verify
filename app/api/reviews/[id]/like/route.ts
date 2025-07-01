@@ -6,8 +6,7 @@ import { getAuth } from "@clerk/nextjs/server";
 
 export async function POST(
   request: NextRequest,
-  // Change reviewId to id here to match your folder name '[id]'
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
   const { userId } = getAuth(request);
   if (!userId) {
@@ -17,8 +16,8 @@ export async function POST(
     );
   }
 
-  // Destructure 'id' from params
-  const { id } = params;
+  // Await the params to get the id
+  const { id } = await context.params;
 
   try {
     await connectToDatabase();
