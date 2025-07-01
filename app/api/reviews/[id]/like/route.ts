@@ -34,7 +34,7 @@ export async function POST(
     }
 
     let newLikeCount = review.like || 0;
-    let hasLiked = review.likedBy.includes(userId);
+    const hasLiked = review.likedBy.includes(userId);
 
     if (hasLiked) {
       review.likedBy = review.likedBy.filter((_id: string) => _id !== userId);
@@ -55,10 +55,14 @@ export async function POST(
       },
       { status: 200 },
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error liking/unliking review:", err);
+    let errorMessage = "Internal Server Error";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
     return NextResponse.json(
-      { success: false, error: err.message || "Internal Server Error" },
+      { success: false, error: errorMessage },
       { status: 500 },
     );
   }

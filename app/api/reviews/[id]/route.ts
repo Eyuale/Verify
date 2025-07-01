@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Review } from "@/models/reviewSchema";
-import { Product } from "@/models/productSchema"; // Ensure this import is present
+// import { Product } from "@/models/productSchema"; // Ensure this import is present
 
 export async function GET(
   req: NextRequest,
