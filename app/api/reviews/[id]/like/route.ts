@@ -1,29 +1,19 @@
-// app/api/reviews/[id]/like/route.ts
+// app/api/reviews/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Review } from "@/models/reviewSchema";
-import { getAuth } from "@clerk/nextjs/server";
 
-export async function POST(
-  request: NextRequest,
+// Corrected function signature and logic for GET
+export async function GET(
+  req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  const { userId } = getAuth(request);
-  if (!userId) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 },
-    );
-  }
-
   // Await the params to get the id
   const { id } = await context.params;
 
   try {
     await connectToDatabase();
-
-    // Use 'id' to find the review
-    const review = await Review.findById(id);
+    const review = await Review.findById(id).lean();
 
     if (!review) {
       return NextResponse.json(
@@ -31,31 +21,9 @@ export async function POST(
         { status: 404 },
       );
     }
-
-    let newLikeCount = review.like || 0;
-    const hasLiked = review.likedBy.includes(userId);
-
-    if (hasLiked) {
-      review.likedBy = review.likedBy.filter((_id: string) => _id !== userId);
-      newLikeCount = Math.max(0, newLikeCount - 1);
-    } else {
-      review.likedBy.push(userId);
-      newLikeCount = newLikeCount + 1;
-    }
-
-    review.like = newLikeCount;
-    await review.save();
-
-    return NextResponse.json(
-      {
-        success: true,
-        newLikeCount: review.like,
-        hasLiked: !hasLiked,
-      },
-      { status: 200 },
-    );
+    return NextResponse.json({ success: true, review });
   } catch (err: unknown) {
-    console.error("Error liking/unliking review:", err);
+    console.error("GET /api/reviews/[id] error:", err);
     let errorMessage = "Internal Server Error";
     if (err instanceof Error) {
       errorMessage = err.message;
