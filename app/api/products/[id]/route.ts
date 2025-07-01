@@ -5,6 +5,7 @@ import { Product } from "@/models/productSchema";
 import { Review } from "@/models/reviewSchema";
 import { TProduct, TReviews } from "@/lib/types"; // Make sure these are updated
 
+// Correct the signature of the GET function
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } },
@@ -31,8 +32,17 @@ export async function GET(
     
     console.log(product, reviews);
 
-    const safeProduct = JSON.parse(JSON.stringify(product));
-    const safeReviews = JSON.parse(JSON.stringify(reviews)); 
+    // No need for JSON.parse(JSON.stringify()) if you use .lean()
+    // Mongoose documents returned with .lean() are plain JavaScript objects.
+    // If you need to ensure the data is serializable for a Next.js API route,
+    // you can use the mongoose-lean-virtuals plugin or just pass the lean object directly.
+    // If you're running into a serialization issue, it's likely a non-lean property.
+    // However, for now, let's keep it simple and see if the type fix is enough.
+    // const safeProduct = JSON.parse(JSON.stringify(product));
+    // const safeReviews = JSON.parse(JSON.stringify(reviews)); 
+    // You can just do this as the objects are already plain JS objects from .lean()
+    const safeProduct = product;
+    const safeReviews = reviews;
 
     return NextResponse.json({ success: true, product: safeProduct, reviews: safeReviews });
   } catch (err) {
@@ -45,7 +55,6 @@ export async function GET(
 }
 
 // ... (rest of the PUT and DELETE functions remain the same)
-
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } },
