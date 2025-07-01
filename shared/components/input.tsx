@@ -4,7 +4,7 @@
 import React, { ChangeEvent } from "react";
 
 type T_INPUT = {
-  disabled? : boolean;
+  disabled?: boolean;
   accept?: string;
   label?: string;
   type?: string;
@@ -36,7 +36,7 @@ const Input = ({
   value,
   onKeyDown,
   onChange,
-  defaultValue
+  defaultValue,
 }: T_INPUT) => {
   return (
     <div className="flex w-full flex-col space-y-2">
@@ -58,7 +58,7 @@ const Input = ({
         />
       ) : (
         <input
-         disabled={disabled}
+          disabled={disabled}
           defaultValue={defaultValue}
           accept={accept}
           id={name}
@@ -70,7 +70,7 @@ const Input = ({
           list={list} // ← PASS THROUGH
           value={value}
           onChange={onChange}
-          className="rounded-md bg-black/5 p-2 text-sm dark:bg-white/5"
+          className="flex h-8 items-center rounded-full border border-black/10 p-4 py-5 text-sm outline-none dark:border-white/5"
           onKeyDown={onKeyDown}
         />
       )}

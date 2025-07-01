@@ -7,6 +7,16 @@
   src: url("../public/fonts/InterVariable.ttf");
 }
 
+.review-description-truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Number of lines to show */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Ensure it takes full width if needed, though 'w-full' from Tailwind already handles it */
+  width: 100%;
+}
+
 body {
   font-family: "Inter", sans-serif;
 }

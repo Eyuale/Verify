@@ -1,12 +1,24 @@
 // app/page.tsx
 
-import { TReviews } from "@/lib/types";
-import Link from "next/link";
+import { TProduct, TReviews } from "@/lib/types";
+import { users } from "@clerk/clerk-sdk-node";
+import ReviewCard from "@/modules/review/ReviewCard"; // Import the new ReviewCard component
 
+// A helper type for user data from Clerk
+// It's good practice to define this in a shared types file if used across multiple components.
+type TUser = {
+  id: string;
+  imageUrl: string;
+  firstName: string | null;
+};
+1;
 export default async function Home() {
-  let review: TReviews[] = [];
-  const productsMap = new Map<string, TProduct>(); // To store products by their ID
+  let reviews: TReviews[] = [];
+  const productsMap = new Map<string, TProduct>();
+  const usersMap = new Map<string, TUser>();
+
   try {
+    // 1. Fetch all reviews
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews`, {
       cache: "no-store",
     });
@@ -14,78 +26,96 @@ export default async function Home() {
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-    const reviews = await res.json();
+    const reviewsData = await res.json();
+    reviews = reviewsData.reviews || []; // Ensure reviews is an array
 
-    review = await reviews.reviews;
+    if (reviews.length === 0) {
+      // No reviews to process, exit early
+      return (
+        <div className="pt-32 text-center">
+          <h1 className="text-2xl font-bold">Welcome</h1>
+          <p className="mt-4 text-gray-500">No reviews found yet.</p>
+        </div>
+      );
+    }
 
+    // 2. Collect all unique Product IDs and User IDs from the reviews
     const productIds = new Set<string>();
+    const userIds = new Set<string>();
     reviews.forEach((review) => {
       if (review.productId) {
-        productIds.add(review.productId);
+        productIds.add(review.productId.toString());
+      }
+      if (review.userId) {
+        userIds.add(review.userId);
       }
     });
 
-    // 3. Fetch details for each unique product ID
-    // We'll use Promise.all to fetch all products concurrently
+    // 3. Fetch all products and users concurrently for efficiency
     const productFetchPromises = Array.from(productIds).map(
       async (productId) => {
         try {
           const resProduct = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`,
-            {
-              cache: "no-store",
-            },
+            { cache: "no-store" },
           );
-
-          if (!resProduct.ok) {
-            console.warn(
-              `Could not fetch product with ID: ${productId}. Status: ${resProduct.status}`,
-            );
-            return null; // Return null if product fetch fails
-          }
+          if (!resProduct.ok) return null;
           const productData = await resProduct.json();
-          return productData.product as TProduct; // Assuming the product data is under 'product' key
-        } catch (productError) {
-          console.error(`Error fetching product ${productId}:`, productError);
-          return null; // Return null on error
+          return productData.product as TProduct;
+        } catch {
+          return null;
         }
       },
     );
 
-    // Wait for all product fetches to complete
-    const fetchedProducts = await Promise.all(productFetchPromises);
+    const userFetchPromise = users.getUserList({
+      userId: Array.from(userIds),
+    });
 
-    // Populate the productsMap for easy lookup
+    // Wait for all data fetching to complete
+    const [fetchedProducts, fetchedUsers] = await Promise.all([
+      Promise.all(productFetchPromises),
+      userFetchPromise,
+    ]);
+
+    // 4. Populate Maps for easy data lookup in the render step
     fetchedProducts.forEach((product) => {
       if (product) {
-        productsMap.set(product._id, product);
+        productsMap.set(product._id.toString(), product);
       }
     });
+
+    fetchedUsers.forEach((user) => {
+      usersMap.set(user.id, {
+        id: user.id,
+        imageUrl: user.imageUrl,
+        firstName: user.firstName,
+      });
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Failed to fetch data for home page:", error);
   }
 
   return (
-    <div className="pt-32">
-      <h1>Welcome</h1>
-      <div className="flex flex-row gap-2">
-        {review.map(async (review, index) => {
+    <div className="flex flex-col items-center px-4 pt-32">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
+        {reviews.map((review) => {
+          // Find the corresponding product and user for the current review
+          const product = productsMap.get(review.productId.toString());
+          const user = usersMap.get(review.userId);
+
+          // Do not render a card if the associated product is missing
+          if (!product) {
+            return null;
+          }
+
           return (
-            <Link
-              href={`/products/${review.productId}/reviews/${review._id}`}
-              key={index}
-            >
-              <video
-                src={`${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${review.videoUrl}`}
-                controls
-                width={100}
-                height={200}
-              />
-              <div>
-                {/* <img src={} />
-                <p>{}</p> */}
-              </div>
-            </Link>
+            <ReviewCard
+              key={(review as any)._id}
+              review={review}
+              product={product}
+              user={user}
+            />
           );
         })}
       </div>

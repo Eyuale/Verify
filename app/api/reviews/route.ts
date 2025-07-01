@@ -1,11 +1,10 @@
-// app/api/reviews/route.ts (Note: Your original path was app/api/review/route.ts, changed to plural for consistency)
-
+// app/api/reviews/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongoose";
-import { Review } from "@/models/reviewSchema"; // Assuming this path is correct
-import { Product } from "@/models/productSchema"; // <--- Import the Product model
+import { Review } from "@/models/reviewSchema";
+import { Product } from "@/models/productSchema";
 import { getAuth } from "@clerk/nextjs/server";
-import { TReviews } from "@/lib/types"; // Assuming TReviews is defined and matches your payload
+import { TReviews } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   const { userId } = getAuth(request);
@@ -19,64 +18,61 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
     const body: TReviews = await request.json();
-    const { productId, rating, reviewDescription, videoUrl } = body; // userId is from Clerk's getAuth
+    const { productId, rating, reviewDescription, videoUrl } = body;
 
-    // 1. Create the new review
     const newReview = await Review.create({
       productId,
-      userId, // Use userId from Clerk's getAuth for consistency and security
+      userId,
       rating,
       reviewDescription,
       videoUrl,
     });
 
-    // 2. Find the product and add the new review's ID to its reviews array
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
-      { $push: { reviews: newReview._id } }, // Atomically push the new review's ID
-      { new: true } // Return the updated document
+      { $push: { reviews: newReview._id } },
+      { new: true },
     );
 
     if (!updatedProduct) {
-      // If product not found, you might want to delete the created review or handle it differently
-      console.error(`Product with ID ${productId} not found for review ${newReview._id}`);
-      // Optionally, delete the review if the product doesn't exist
+      console.error(
+        `Product with ID ${productId} not found for review ${newReview._id}`,
+      );
       await Review.findByIdAndDelete(newReview._id);
       return NextResponse.json(
         { success: false, error: "Product not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
-      { success: true, newReview, updatedProduct }, // Optionally return updated product
-      { status: 201 }
+      { success: true, newReview, updatedProduct },
+      { status: 201 },
     );
-
   } catch (err: any) {
     console.error("Error creating review or updating product:", err);
     return NextResponse.json(
       { success: false, error: err.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function GET(){
-  await connectToDatabase()
+export async function GET() {
+  await connectToDatabase();
 
-  try{
-    const reviews = await Review.find({})
+  try {
+    // Explicitly select the 'likedBy' field
+    const reviews = await Review.find({}).select("+likedBy");
 
-    console.log(reviews)
-
+    return NextResponse.json({ reviews }, { status: 200 });
+  } catch (err) {
     return NextResponse.json(
-      {reviews},
-      { status: 200}
-    )
-  }catch(err){
-    return NextResponse.json({
-      success: false, error: err
-    }, {status: 500})
+      {
+        success: false,
+        error: err,
+      },
+      { status: 500 },
+    );
   }
 }

@@ -7,7 +7,7 @@ import ToggleTheme from "@/theme/component/ToggleTheme";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Menu, PenLineIcon } from "lucide-react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input"
+import Input from "@/shared/components/input";
 import { useRouter } from "next/navigation";
 
 interface NavbarProps {
@@ -16,9 +16,11 @@ interface NavbarProps {
 
 export default function Navbar({ toggleSidebar }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState<{ product_name: string, imageUrl: string, _id: string }[]>([]);
+  const [products, setProducts] = useState<
+    { product_name: string; imageUrl: string; _id: string }[]
+  >([]);
   const [isMounted, setIsMounted] = useState(false); // New state for client-side mount
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true); // Set to true once component mounts on client
@@ -39,12 +41,14 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
   // Function to handle clearing search query and products when a link is clicked
   const handleLinkClick = () => {
     setSearchQuery(""); // Clear the search query
-    setProducts([]);    // Clear the products
+    setProducts([]); // Clear the products
   };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      console.log(e.key)
-    if (e.key === 'Enter' && searchQuery) {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    console.log(e.key);
+    if (e.key === "Enter" && searchQuery) {
       handleLinkClick(); // Clear suggestions before navigating
       router.push(`/result?search_query=${searchQuery}`);
     }
@@ -64,35 +68,36 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
         </h3>
       </div>
       <div>
-        <Input 
-          placeholder="search product" 
-          onChange={(e) => setSearchQuery(e.target.value)} 
+        <Input
+          placeholder="Search products..."
+          onChange={(e) => setSearchQuery(e.target.value)}
           value={searchQuery}
-          onKeyDown={handleKeyDown} // Add onKeyDown event listener  
+          onKeyDown={handleKeyDown} // Add onKeyDown event listener
         />
-        {
-          searchQuery && products && products.length > 0 ?
-            (
-              <div className="absolute top-16 left-1/2 bg-[#eae5e5] shadow-sm dark:bg-black/10 rounded-lg p-4 w-[50%] transform -translate-x-1/2">
-                {products.map((product, index) => {
-                    console.log(products)
-                  return (
-                    <Link
-                      href={`/products/${product._id}`}
-                      key={index}
-                      className="w-full flex items-center gap-2 py-2"
-                      onClick={handleLinkClick} // Call handleLinkClick when a product link is clicked
-                    >
-                      <img src={product?.imageUrl} className="w-12 h-12 rounded-md object-cover" alt="product image"/>
-                      {product?.product_name}
-                    </Link>
-                  )
-                })}
-              </div>
-            )
-            :
-            searchQuery && products.length === 0 ? <div>No products found.</div> : null
-        }
+        {searchQuery && products && products.length > 0 ? (
+          <div className="absolute top-16 left-1/2 w-[50%] -translate-x-1/2 transform rounded-lg bg-[#eae5e5] p-4 shadow-sm dark:bg-black/10">
+            {products.map((product, index) => {
+              console.log(products);
+              return (
+                <Link
+                  href={`/products/${product._id}`}
+                  key={index}
+                  className="flex w-full items-center gap-2 py-2"
+                  onClick={handleLinkClick} // Call handleLinkClick when a product link is clicked
+                >
+                  <img
+                    src={product?.imageUrl}
+                    className="h-12 w-12 rounded-md object-cover"
+                    alt="product image"
+                  />
+                  {product?.product_name}
+                </Link>
+              );
+            })}
+          </div>
+        ) : searchQuery && products.length === 0 ? (
+          <div>No products found.</div>
+        ) : null}
       </div>
       <div className="flex h-full items-center gap-4">
         <Link href="/products/add">
