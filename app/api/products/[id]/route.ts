@@ -1,21 +1,23 @@
 // app/api/products/[id]/route.ts
 import { connectToDatabase } from "@/lib/mongoose";
-import { TProduct, TReviews } from "@/lib/types"; // Make sure these are updated
+import { TProduct, TReviews } from "@/lib/types";
 import { Product } from "@/models/productSchema";
 import { Review } from "@/models/reviewSchema";
 import { NextRequest, NextResponse } from "next/server";
 
-// Correct the signature of the GET function
+// Corrected function signature and logic for GET
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  // Type the params as a Promise
+  context: { params: Promise<{ id: string }> },
 ) {
+  // Await the params to get the id
+  const { id } = await context.params;
+
   try {
     await connectToDatabase();
-    console.log(params.id);
-
-    // This cast will now work correctly if TProduct includes _id, createdAt, etc.
-    const product: TProduct | null = (await Product.findById(params.id).lean()) as TProduct | null;
+    // ... (rest of your GET logic is correct)
+    const product: TProduct | null = (await Product.findById(id).lean()) as TProduct | null;
 
     if (!product) {
       return NextResponse.json(
@@ -26,21 +28,11 @@ export async function GET(
 
     let reviews: TReviews[] = [];
     if (product.reviews && product.reviews.length > 0) {
-      // This cast will now work correctly if TReviews includes productId, userId, createdAt, etc.
       reviews = (await Review.find({ _id: { $in: product.reviews } }).lean() as unknown) as TReviews[];
     }
     
     console.log(product, reviews);
 
-    // No need for JSON.parse(JSON.stringify()) if you use .lean()
-    // Mongoose documents returned with .lean() are plain JavaScript objects.
-    // If you need to ensure the data is serializable for a Next.js API route,
-    // you can use the mongoose-lean-virtuals plugin or just pass the lean object directly.
-    // If you're running into a serialization issue, it's likely a non-lean property.
-    // However, for now, let's keep it simple and see if the type fix is enough.
-    // const safeProduct = JSON.parse(JSON.stringify(product));
-    // const safeReviews = JSON.parse(JSON.stringify(reviews)); 
-    // You can just do this as the objects are already plain JS objects from .lean()
     const safeProduct = product;
     const safeReviews = reviews;
 
@@ -54,39 +46,37 @@ export async function GET(
   }
 }
 
-// ... (rest of the PUT and DELETE functions remain the same)
+// Corrected function signature and logic for PUT
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await context.params;
   try {
     await connectToDatabase();
     const body = await req.json();
-    const updateFields: Partial<TProduct> = {}; // Use Partial<TProduct> for update fields
+    const updateFields: Partial<TProduct> = {};
 
-    // Only pick allowed fields that are part of TProduct
-    // Dynamically derive keys from TProduct to make it more robust
     const allowedKeys: (keyof TProduct)[] = [
       "product_name",
       "description",
       "imageUrl",
-      "videoUrl", // Assuming videoUrl is part of TProduct
+      "videoUrl",
       "price",
       "company_name",
       "model",
       "category",
-      "ai_summary", // Include if updatable
-      "webLink",    // Include if updatable
+      "ai_summary",
+      "webLink",
     ];
 
     for (const key of allowedKeys) {
       if (key in body) {
-        // Ensure type compatibility when assigning
         (updateFields as Partial<TProduct>)[key as keyof TProduct] = body[key];
       }
     }
 
-    const updated: TProduct | null = (await Product.findByIdAndUpdate(params.id, updateFields, {
+    const updated: TProduct | null = (await Product.findByIdAndUpdate(id, updateFields, {
       new: true,
     }).lean()) as TProduct | null;
 
@@ -108,13 +98,15 @@ export async function PUT(
   }
 }
 
+// Corrected function signature and logic for DELETE
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await context.params;
   try {
     await connectToDatabase();
-    const deleted = await Product.findByIdAndDelete(params.id);
+    const deleted = await Product.findByIdAndDelete(id);
     if (!deleted) {
       return NextResponse.json(
         { success: false, error: "Product not found" },
