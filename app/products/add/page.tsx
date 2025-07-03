@@ -2,7 +2,7 @@
 import Form from "@/modules/product/form/Form";
 import { Suspense } from "react";
 
-// Define an interface for your page props
+// Define an interface for your page's searchParams
 interface AddProductPageProps {
   searchParams: {
     step?: string;
@@ -11,9 +11,7 @@ interface AddProductPageProps {
   };
 }
 
-export default async function AddProductPage({
-  searchParams,
-}: AddProductPageProps) {
+export default function AddProductPage({ searchParams }: AddProductPageProps) {
   return (
     <div className="min-h-screen p-8">
       {searchParams.success && (
