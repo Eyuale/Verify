@@ -1,13 +1,19 @@
 // app/products/add/page.tsx
-// import ProductForm from "@/modules/product/component/ProductForm";
 import Form from "@/modules/product/form/Form";
 import { Suspense } from "react";
 
+// Define an interface for your page props
+interface AddProductPageProps {
+  searchParams: {
+    step?: string;
+    error?: string;
+    success?: string;
+  };
+}
+
 export default async function AddProductPage({
   searchParams,
-}: {
-  searchParams: { step?: string; error?: string; success?: string };
-}) {
+}: AddProductPageProps) {
   return (
     <div className="min-h-screen p-8">
       {searchParams.success && (
