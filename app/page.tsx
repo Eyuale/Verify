@@ -21,6 +21,9 @@ export default async function Home() {
     // 1. Fetch all reviews
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews`, {
       cache: "no-store",
+      next: {
+        revalidate: 60
+      }
     });
 
     if (!res.ok) {
