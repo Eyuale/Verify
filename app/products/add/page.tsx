@@ -4,14 +4,15 @@ import { Suspense } from "react";
 
 // Define an interface for your page's searchParams
 interface AddProductPageProps {
-  searchParams: {
+  searchParams: Promise<{
     step?: string;
     error?: string;
     success?: string;
-  };
+  }>;
 }
 
-export default function AddProductPage({ searchParams }: AddProductPageProps) {
+export default async function AddProductPage(props: AddProductPageProps) {
+  const searchParams = await props.searchParams;
   return (
     <div className="min-h-screen p-8">
       {searchParams.success && (
