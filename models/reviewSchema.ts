@@ -7,7 +7,7 @@ const CommentSchema = new Schema({
   imageUrl: { type: String, required: false },
   videoUrl: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
-  like: { type: Number, default: 0 },
+  likes: { type: Number, default: 0 },
   accurate: { type: Number, default: 0 },
   inaccurate: { type: Number, default: 0 },
 });
