@@ -2,14 +2,20 @@
 import { Schema, model, models, Types } from "mongoose";
 
 const CommentSchema = new Schema({
+  avatar: { type: String },
   comment: { type: String, required: true },
   userId: { type: String, required: true },
+  username: { type: String, required: true },
   imageUrl: { type: String, required: false },
   videoUrl: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
-  likes: { type: Number, default: 0 },
-  accurate: { type: Number, default: 0 },
-  inaccurate: { type: Number, default: 0 },
+  upvote: { type: Number, default: 0 },
+  downvote: { type: Number, default: 0 },
+  // accurate: { type: Number, default: 0 },
+  // inaccurate: { type: Number, default: 0 },
+  // likedBy: [{ type: String }], // Store Clerk user IDs
+  upvoteBy: [{ type: String }], // Store Clerk user IDs
+  downvoteBy: [{ type: String }], // Store Clerk user IDs
 });
 
 const ReviewSchema = new Schema(

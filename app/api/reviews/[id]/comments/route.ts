@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Review } from "@/models/reviewSchema"
 import { connectToDatabase } from "@/lib/mongoose"
+import { currentUser } from "@clerk/nextjs/server";
 
 // GET comments for a specific review
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -28,11 +29,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 // POST new comment to a specific review
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+  const user = await currentUser();
+
+  if(!user){
+    return NextResponse.json({ error: "User not found"}, { status: 404})
+  }
+
   try {
     await connectToDatabase()
 
     const body = await request.json()
-    const { comment, userId, imageUrl, videoUrl } = body
+    const { comment, userId, imageUrl, videoUrl, upvote, downvote } = body
 
     if (!comment || !userId) {
       return NextResponse.json({ error: "Comment and userId are required" }, { status: 400 })
@@ -44,9 +51,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       imageUrl: imageUrl || "",
       videoUrl: videoUrl || "",
       createdAt: new Date(),
-      like: 0,
-      accurate: 0,
-      inaccurate: 0,
+      likes: 0,
+      username: user.username,
+      avatar: user.imageUrl,
+      upvote,
+      downvote
     }
 
     const review = await Review.findByIdAndUpdate(
