@@ -60,7 +60,12 @@ export async function PATCH(
     // We need to use $addToSet for adding (to prevent duplicates) and $pull for removing
     // And $inc for incrementing/decrementing counts
 
-    let updateOperations: any = { $inc: {}, $addToSet: {}, $pull: {} };
+    type UpdateOperations = {
+      $inc?: Record<string, number>;
+      $addToSet?: Record<string, string>;
+      $pull?: Record<string, string>;
+    };
+    const updateOperations: UpdateOperations = { $inc: {}, $addToSet: {}, $pull: {} };
     let hasChanges = false; // Flag to check if any update operation is actually needed
 
     // Logic for removing old action if present
@@ -71,8 +76,8 @@ export async function PATCH(
       switch (oldActionToRemove) {
         case "upvote":
           if (comment.upvoteBy.includes(userId)) {
-            updateOperations.$inc["comments.$.upvote"] = -1;
-            updateOperations.$pull["comments.$.upvoteBy"] = userId;
+            updateOperations.$inc!["comments.$.upvote"] = -1;
+            updateOperations.$pull!["comments.$.upvoteBy"] = userId;
             hasChanges = true;
             console.log(
               `[BACKEND PATCH] Decrementing upvote and pulling userId from upvoteBy.`,
@@ -81,8 +86,8 @@ export async function PATCH(
           break;
         case "downvote":
           if (comment.downvoteBy.includes(userId)) {
-            updateOperations.$inc["comments.$.downvote"] = -1;
-            updateOperations.$pull["comments.$.downvoteBy"] = userId;
+            updateOperations.$inc!["comments.$.downvote"] = -1;
+            updateOperations.$pull!["comments.$.downvoteBy"] = userId;
             hasChanges = true;
             console.log(
               `[BACKEND PATCH] Decrementing downvote and pulling userId from downvoteBy.`,
@@ -98,16 +103,16 @@ export async function PATCH(
       case "upvote":
         if (comment.upvoteBy.includes(userId)) {
           // If already liked, toggle off
-          updateOperations.$inc["comments.$.upvote"] =
-            (updateOperations.$inc["comments.$.upvote"] || 0) - 1;
-          updateOperations.$pull["comments.$.upvoteBy"] = userId;
+          updateOperations.$inc!["comments.$.upvote"] =
+            (updateOperations.$inc!["comments.$.upvote"] || 0) - 1;
+          updateOperations.$pull!["comments.$.upvoteBy"] = userId;
           hasChanges = true;
           console.log(`[BACKEND PATCH] User already upvoted, toggling off.`);
         } else {
           // If not liked, like it
-          updateOperations.$inc["comments.$.upvote"] =
-            (updateOperations.$inc["comments.$.upvote"] || 0) + 1;
-          updateOperations.$addToSet["comments.$.upvoteBy"] = userId;
+          updateOperations.$inc!["comments.$.upvote"] =
+            (updateOperations.$inc!["comments.$.upvote"] || 0) + 1;
+          updateOperations.$addToSet!["comments.$.upvoteBy"] = userId;
           hasChanges = true;
           console.log(`[BACKEND PATCH] User upvoting comment.`);
         }
@@ -115,18 +120,18 @@ export async function PATCH(
       case "downvote":
         if (comment.downvoteBy.includes(userId)) {
           // If already downvote, toggle off
-          updateOperations.$inc["comments.$.downvote"] =
-            (updateOperations.$inc["comments.$.downvote"] || 0) - 1;
-          updateOperations.$pull["comments.$.downvoteBy"] = userId;
+          updateOperations.$inc!["comments.$.downvote"] =
+            (updateOperations.$inc!["comments.$.downvote"] || 0) - 1;
+          updateOperations.$pull!["comments.$.downvoteBy"] = userId;
           hasChanges = true;
           console.log(
             `[BACKEND PATCH] User already marked downvote, toggling off.`,
           );
         } else {
           // If not downvote, mark as downvote
-          updateOperations.$inc["comments.$.downvote"] =
-            (updateOperations.$inc["comments.$.downvote"] || 0) + 1;
-          updateOperations.$addToSet["comments.$.downvoteBy"] = userId;
+          updateOperations.$inc!["comments.$.downvote"] =
+            (updateOperations.$inc!["comments.$.downvote"] || 0) + 1;
+          updateOperations.$addToSet!["comments.$.downvoteBy"] = userId;
           hasChanges = true;
           console.log(`[BACKEND PATCH] User marking downvote.`);
         }
@@ -137,11 +142,11 @@ export async function PATCH(
     }
 
     // Clean up empty operations to avoid Mongoose errors
-    if (Object.keys(updateOperations.$inc).length === 0)
+    if (Object.keys(updateOperations.$inc!).length === 0)
       delete updateOperations.$inc;
-    if (Object.keys(updateOperations.$addToSet).length === 0)
+    if (Object.keys(updateOperations.$addToSet!).length === 0)
       delete updateOperations.$addToSet;
-    if (Object.keys(updateOperations.$pull).length === 0)
+    if (Object.keys(updateOperations.$pull!).length === 0)
       delete updateOperations.$pull;
 
     if (!hasChanges) {
@@ -177,8 +182,18 @@ export async function PATCH(
       );
     }
 
+    // Replace 'CommentType' with the actual type of your comment if available
+    interface CommentType {
+      _id: { toString(): string };
+      upvote: number;
+      downvote: number;
+      upvoteBy: string[];
+      downvoteBy: string[];
+      // add other fields as needed
+    }
+
     const updatedComment = updatedReview.comments.find(
-      (c: any) => c._id.toString() === commentId,
+      (c: CommentType) => c._id.toString() === commentId,
     );
 
     if (!updatedComment) {
