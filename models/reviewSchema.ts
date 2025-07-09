@@ -11,11 +11,10 @@ const CommentSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   upvote: { type: Number, default: 0 },
   downvote: { type: Number, default: 0 },
-  // accurate: { type: Number, default: 0 },
-  // inaccurate: { type: Number, default: 0 },
-  // likedBy: [{ type: String }], // Store Clerk user IDs
   upvoteBy: [{ type: String }], // Store Clerk user IDs
   downvoteBy: [{ type: String }], // Store Clerk user IDs
+  parentCommentId: { type: String, default: null }, // NEW: To link replies
+  depth: { type: Number, default: 0 }, // NEW: To track nesting level
 });
 
 const ReviewSchema = new Schema(

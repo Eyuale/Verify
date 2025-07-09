@@ -1,3 +1,4 @@
+// comment-system.tsx
 "use client";
 
 import type React from "react";
@@ -48,6 +49,9 @@ import {
   ArrowBigUp,
   ArrowUp,
   ArrowDown,
+  Reply,
+  ChevronDown, // New: for collapse/expand
+  ChevronUp, // New: for collapse/expand
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 
@@ -62,10 +66,12 @@ interface Comment {
   createdAt: string;
   upvote: number;
   downvote: number;
-  // New fields to track user's votes
   likedBy: string[];
   upvoteBy: string[];
   downvoteBy: string[];
+  parentCommentId: string | null;
+  depth: number;
+  replies?: Comment[];
 }
 
 interface CommentSystemProps {
@@ -81,7 +87,7 @@ export default function CommentSystem({
 }: CommentSystemProps) {
   const { user } = useUser();
   const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState("");
+  const [newCommentText, setNewCommentText] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
@@ -99,10 +105,21 @@ export default function CommentSystem({
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
 
-  // Fetch comments on component mount
+  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(
+    null,
+  );
+  const [replyText, setReplyText] = useState("");
+  const replyInputRef = useRef<HTMLTextAreaElement>(null);
+
   useEffect(() => {
     fetchComments();
   }, [reviewId]);
+
+  useEffect(() => {
+    if (replyingToCommentId && replyInputRef.current) {
+      replyInputRef.current.focus();
+    }
+  }, [replyingToCommentId]);
 
   const fetchComments = async () => {
     try {
@@ -144,26 +161,29 @@ export default function CommentSystem({
     comments: Comment[],
     sortOption: SortOption,
   ): Comment[] => {
-    return [...comments].sort((a, b) => {
-      switch (sortOption) {
-        case "newest":
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        case "oldest":
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        case "most-upvoted":
-          return b.upvote - a.upvote;
-        default:
-          return 0;
-      }
-    });
+    const sorted = [...comments];
+
+    switch (sortOption) {
+      case "newest":
+        return sorted.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
+      case "oldest":
+        return sorted.sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        );
+      case "most-upvoted":
+        return sorted.sort((a, b) => b.upvote - a.upvote);
+      default:
+        return sorted;
+    }
   };
 
-  const handleSubmitComment = async () => {
-    if (!newComment.trim()) {
+  const handleAddComment = async (
+    commentText: string,
+    parentCommentId: string | null = null,
+  ) => {
+    if (!commentText.trim()) {
       toast({
         title: "Error",
         description: "Please enter a comment before submitting.",
@@ -188,9 +208,7 @@ export default function CommentSystem({
       let finalImageUrl = "";
       let finalVideoUrl = "";
 
-      // Step 1: Upload image to S3 if a file is selected
       if (imageFile) {
-        // 1a: Get a pre-signed URL from our API
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -203,7 +221,6 @@ export default function CommentSystem({
         if (!uploadRes.ok)
           throw new Error(uploadData.error || "Failed to get image upload URL");
 
-        // 1b: Upload the file directly to S3
         const s3Res = await fetch(uploadData.url, {
           method: "PUT",
           body: imageFile,
@@ -214,9 +231,7 @@ export default function CommentSystem({
         finalImageUrl = uploadData.key;
       }
 
-      // Step 2: Upload video to S3 if a file is selected
       if (videoFile) {
-        // 2a: Get a pre-signed URL from our API
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -229,7 +244,6 @@ export default function CommentSystem({
         if (!uploadRes.ok)
           throw new Error(uploadData.error || "Failed to get video upload URL");
 
-        // 2b: Upload the file directly to S3
         const s3Res = await fetch(uploadData.url, {
           method: "PUT",
           body: videoFile,
@@ -242,17 +256,17 @@ export default function CommentSystem({
 
       setUploadingMedia(false);
 
-      // Step 3: Submit comment with media URLs
       const response = await fetch(`/api/reviews/${reviewId}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          comment: newComment.trim(),
+          comment: commentText.trim(),
           userId: user?.id,
           imageUrl: finalImageUrl,
           videoUrl: finalVideoUrl,
+          parentCommentId: parentCommentId,
         }),
       });
 
@@ -260,17 +274,15 @@ export default function CommentSystem({
         throw new Error("Failed to submit comment");
       }
 
-      const data = await response.json();
-      // Ensure the new comment has empty vote arrays
-      const newCommentWithVotes = {
-        ...data.comment,
-        upvote: [],
-        downvote: [],
-        upvoteBy: [],
-        downvoteBy: [],
-      };
-      setComments((prev) => [newCommentWithVotes, ...prev]);
-      setNewComment("");
+      await fetchComments();
+
+      if (parentCommentId) {
+        setReplyText("");
+        setReplyingToCommentId(null);
+      } else {
+        setNewCommentText("");
+      }
+
       setImageFile(null);
       setVideoFile(null);
 
@@ -305,34 +317,41 @@ export default function CommentSystem({
     }
 
     try {
-      const commentToUpdate = comments.find(
-        (comment) => comment._id === commentId,
-      );
+      let commentToUpdate: Comment | undefined;
+      const findComment = (
+        commentsArr: Comment[],
+        id: string,
+      ): Comment | undefined => {
+        for (const c of commentsArr) {
+          if (c._id === id) return c;
+          if (c.replies) {
+            const foundInReplies = findComment(c.replies, id);
+            if (foundInReplies) return foundInReplies;
+          }
+        }
+        return undefined;
+      };
+      commentToUpdate = findComment(comments, commentId);
+
       if (!commentToUpdate) return;
 
       const userId = user.id;
-      let newAction: string = action; // 'like', 'accurate', 'inaccurate', 'remove-like', etc.
+      let newAction: string = action;
       let oldActionToRemove: string | null = null;
 
-      // Determine the current state of the user's vote on this comment
       const hasUpvote = commentToUpdate.upvoteBy.includes(userId);
       const hasDownvote = commentToUpdate.downvoteBy.includes(userId);
 
-      // Logic to determine the action to send to the backend
       if (action === "upvote") {
         if (hasUpvote) {
-          // If already upvoted, toggle off
           newAction = "remove-upvote";
         } else {
-          // If not upvoted, upvote it. Check for existing downvote to remove.
           if (hasDownvote) oldActionToRemove = "downvote";
         }
       } else if (action === "downvote") {
         if (hasDownvote) {
-          // If already downvoted, toggle off
           newAction = "remove-downvote";
         } else {
-          // If not downvoted, downvote it. Check for existing upvote to remove.
           if (hasUpvote) oldActionToRemove = "upvote";
         }
       }
@@ -348,7 +367,7 @@ export default function CommentSystem({
             action: newAction,
             userId,
             oldActionToRemove,
-          }), // Send userId and oldActionToRemove
+          }),
         },
       );
 
@@ -356,12 +375,7 @@ export default function CommentSystem({
         throw new Error(`Failed to update comment action`);
       }
 
-      const data = await response.json();
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment._id === commentId ? data.comment : comment,
-        ),
-      );
+      await fetchComments();
     } catch (error) {
       console.error(`Error performing comment action:`, error);
       toast({
@@ -385,9 +399,7 @@ export default function CommentSystem({
         throw new Error("Failed to delete comment");
       }
 
-      setComments((prev) =>
-        prev.filter((comment) => comment._id !== commentId),
-      );
+      await fetchComments();
 
       toast({
         title: "Success",
@@ -405,7 +417,6 @@ export default function CommentSystem({
 
   const handleReportComment = () => {
     if (reportDialog.commentId && reportReason) {
-      // In a real app, this would send the report to your backend
       console.log(
         "Reporting comment:",
         reportDialog.commentId,
@@ -471,25 +482,7 @@ export default function CommentSystem({
 
     return (
       <div className="flex items-center gap-1 border-t p-2">
-        <Button variant="ghost" size="sm" onClick={() => onAction("bold")}>
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => onAction("italic")}>
-          <Italic className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => onAction("underline")}>
-          <Underline className="h-4 w-4" />
-        </Button>
         <div className="bg-border mx-1 h-4 w-px" />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onAction("attachment")}
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>
-
-        {/* Image Upload */}
         <Button
           variant="ghost"
           size="sm"
@@ -506,7 +499,6 @@ export default function CommentSystem({
           className="hidden"
         />
 
-        {/* Video Upload */}
         <Button
           variant="ghost"
           size="sm"
@@ -533,128 +525,223 @@ export default function CommentSystem({
     );
   };
 
+  // Recursive CommentItem component
   const CommentItem = ({ comment }: { comment: Comment }) => {
-    const userId = user?.id; // Get the current logged-in user's ID
+    const userId = user?.id;
+    // NEW STATE: To control replies visibility
+    const [showReplies, setShowReplies] = useState(false);
 
     const hasUpvote = comment.upvoteBy.includes(userId || "");
-    // const hasAccurate = comment.accurateBy.includes(userId || "");
     const hasDownvote = comment.downvoteBy.includes(userId || "");
 
+    const handleReplyClick = () => {
+      setReplyingToCommentId(comment._id);
+      setReplyText("");
+      // Optionally, expand replies when user clicks reply button
+      setShowReplies(true); 
+    };
+
+    const toggleReplies = () => {
+      setShowReplies(!showReplies);
+    };
+
     return (
-      <div className="flex gap-3 py-4">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={comment.avatar} alt="User" />
-          <AvatarFallback>
-            {comment.userId.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+      <div
+        className="space-y-2 py-4"
+        style={{ marginLeft: `${comment.depth * 20}px` }}
+      >
+        <div className="flex gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={comment.avatar} alt="User" />
+            <AvatarFallback>
+              {comment.username.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">{comment.username}</span>
-            <span className="text-muted-foreground text-sm">
-              {formatTimestamp(comment.createdAt)}
-            </span>
-          </div>
-
-          <p className="text-sm leading-relaxed">{comment.comment}</p>
-
-          {/* Display S3 Image */}
-          {comment.imageUrl && (
-            <div className="mt-2">
-              <img
-                src={
-                  comment.imageUrl.startsWith("http")
-                    ? comment.imageUrl
-                    : `${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${comment.imageUrl}`
-                }
-                alt="Comment attachment"
-                className="max-w-xs rounded-lg border"
-                onError={(e) => {
-                  console.error("Failed to load image:", comment.imageUrl);
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            </div>
-          )}
-
-          {/* Display S3 Video */}
-          {comment.videoUrl && (
-            <div className="mt-2">
-              <video
-                src={
-                  comment.videoUrl.startsWith("http")
-                    ? comment.videoUrl
-                    : `${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${comment.videoUrl}`
-                }
-                controls
-                className="max-w-xs rounded-lg border"
-                onError={(e) => {
-                  console.error("Failed to load video:", comment.videoUrl);
-                  e.currentTarget.style.display = "none";
-                }}
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          )}
-
-          <div className="flex items-center gap-4">
-            <div className="">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleCommentAction(comment._id, "upvote")}
-                className={`h-8 px-2 ${hasUpvote ? "text-blue-600" : ""}`}
-              >
-                <ArrowUp className="h-4 w-4" />
-                <span className="ml-1 text-sm">Upvote . {comment.upvote}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleCommentAction(comment._id, "downvote")}
-                className={`h-8 px-2 ${hasDownvote ? "text-red-600" : ""}`}
-              >
-                <ArrowDown className="h-4 w-4" />
-              </Button>
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">{comment.username}</span>
+              <span className="text-muted-foreground text-sm">
+                {formatTimestamp(comment.createdAt)}
+              </span>
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {user?.id === comment.userId && (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() => handleDeleteComment(comment._id)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem
-                  onClick={() =>
-                    setReportDialog({ open: true, commentId: comment._id })
+            <p className="text-sm leading-relaxed">{comment.comment}</p>
+
+            {comment.imageUrl && (
+              <div className="mt-2">
+                <img
+                  src={
+                    comment.imageUrl.startsWith("http")
+                      ? comment.imageUrl
+                      : `${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${comment.imageUrl}`
                   }
+                  alt="Comment attachment"
+                  className="max-w-xs rounded-lg border"
+                  onError={(e) => {
+                    console.error("Failed to load image:", comment.imageUrl);
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              </div>
+            )}
+
+            {comment.videoUrl && (
+              <div className="mt-2">
+                <video
+                  src={
+                    comment.videoUrl.startsWith("http")
+                      ? comment.videoUrl
+                      : `${process.env.NEXT_PUBLIC_DISTRIBUTION_DOMAIN_NAME}/${comment.videoUrl}`
+                  }
+                  controls
+                  className="max-w-xs rounded-lg border"
+                  onError={(e) => {
+                    console.error("Failed to load video:", comment.videoUrl);
+                    e.currentTarget.style.display = "none";
+                  }}
                 >
-                  <Flag className="mr-2 h-4 w-4" />
-                  Report
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4">
+              <div className="">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCommentAction(comment._id, "upvote")}
+                  className={`h-8 px-2 ${hasUpvote ? "text-blue-600" : ""}`}
+                >
+                  <ArrowUp className="h-4 w-4" />
+                  <span className="ml-1 text-sm">
+                    Upvote . {comment.upvote}
+                  </span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCommentAction(comment._id, "downvote")}
+                  className={`h-8 px-2 ${hasDownvote ? "text-red-600" : ""}`}
+                >
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReplyClick}
+                className="h-8 px-2"
+              >
+                <Reply className="h-4 w-4 mr-1" />
+                Reply
+              </Button>
+
+              {/* NEW: Toggle Replies Button */}
+              {comment.replies && comment.replies.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleReplies}
+                  className="h-8 px-2"
+                >
+                  {showReplies ? (
+                    <>
+                      <ChevronUp className="h-4 w-4 mr-1" /> Hide{" "}
+                      {comment.replies.length} Replies
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-4 w-4 mr-1" /> View{" "}
+                      {comment.replies.length} Replies
+                    </>
+                  )}
+                </Button>
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {user?.id === comment.userId && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteComment(comment._id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem
+                    onClick={() =>
+                      setReportDialog({ open: true, commentId: comment._id })
+                    }
+                  >
+                    <Flag className="mr-2 h-4 w-4" />
+                    Report
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Reply Input Section for this comment */}
+            {replyingToCommentId === comment._id && (
+              <div className="mt-4">
+                <Textarea
+                  ref={replyInputRef}
+                  placeholder={`Replying to ${comment.username}...`}
+                  className="resize-none focus-visible:ring-0"
+                  rows={2}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  disabled={!user?.id}
+                />
+                <div className="mt-2 flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setReplyingToCommentId(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleAddComment(replyText, comment._id)}
+                    disabled={submitting || !user?.id || !replyText.trim()}
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
+                    {submitting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      "Submit Reply"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Conditionally render replies based on showReplies state */}
+        {comment.replies && comment.replies.length > 0 && showReplies && (
+          <div className="border-l pl-4">
+            {comment.replies.map((reply) => (
+              <CommentItem key={reply._id} comment={reply} />
+            ))}
+          </div>
+        )}
       </div>
     );
   };
 
-  const sortedComments = sortComments(comments, sortBy);
+  const displayComments = sortComments(comments, sortBy);
 
   if (loading) {
     return (
@@ -667,18 +754,16 @@ export default function CommentSystem({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Comment Input */}
       <Card>
         <CardContent className="p-0">
           <Textarea
             placeholder="Add comment..."
             className="resize-none border-0 focus-visible:ring-0"
             rows={4}
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
+            value={newCommentText}
+            onChange={(e) => setNewCommentText(e.target.value)}
             disabled={!user?.id}
           />
-          {/* Media Preview Section */}
           {(imageFile || videoFile) && (
             <div className="bg-muted/50 border-t p-3">
               <div className="flex items-center gap-4">
@@ -718,7 +803,7 @@ export default function CommentSystem({
           />
           <div className="flex justify-end p-3">
             <Button
-              onClick={handleSubmitComment}
+              onClick={() => handleAddComment(newCommentText)}
               disabled={submitting || !user?.id}
               className="bg-orange-500 hover:bg-orange-600"
             >
@@ -740,7 +825,6 @@ export default function CommentSystem({
         </CardContent>
       </Card>
 
-      {/* Comments Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-semibold">Comments</h3>
@@ -775,20 +859,18 @@ export default function CommentSystem({
         </DropdownMenu>
       </div>
 
-      {/* Comments List */}
       <div className="space-y-0 divide-y">
-        {sortedComments.length === 0 ? (
+        {displayComments.length === 0 ? (
           <div className="text-muted-foreground py-8 text-center">
             No comments yet. Be the first to comment!
           </div>
         ) : (
-          sortedComments.map((comment) => (
+          displayComments.map((comment) => (
             <CommentItem key={comment._id} comment={comment} />
           ))
         )}
       </div>
 
-      {/* Report Dialog */}
       <Dialog
         open={reportDialog.open}
         onOpenChange={(open) => setReportDialog({ open, commentId: null })}
