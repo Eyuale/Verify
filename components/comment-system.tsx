@@ -336,24 +336,24 @@ export default function CommentSystem({
       if (!commentToUpdate) return;
 
       const userId = user.id;
-      let newAction: string = action;
+      const newAction: string = action;
       let oldActionToRemove: string | null = null;
 
       const hasUpvote = commentToUpdate.upvoteBy.includes(userId);
       const hasDownvote = commentToUpdate.downvoteBy.includes(userId);
 
       if (action === "upvote") {
-        if (hasUpvote) {
-          newAction = "remove-upvote";
-        } else {
+        // if (hasUpvote) {
+        //   newAction = "remove-upvote";
+        // } else {
           if (hasDownvote) oldActionToRemove = "downvote";
-        }
+        // }
       } else if (action === "downvote") {
-        if (hasDownvote) {
-          newAction = "remove-downvote";
-        } else {
+        // if (hasDownvote) {
+        //   newAction = "remove-downvote";
+        // } else {
           if (hasUpvote) oldActionToRemove = "upvote";
-        }
+        // }
       }
 
       const response = await fetch(
