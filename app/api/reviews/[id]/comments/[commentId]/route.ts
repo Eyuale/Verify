@@ -2,6 +2,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { Review } from "@/models/reviewSchema"; // Assuming your schema is here
 import { connectToDatabase } from "@/lib/mongoose";
+import { currentUser } from "@clerk/nextjs/server";
 
 // UPDATE comment (likes, accurate, inaccurate, and their removals)
 export async function PATCH(
@@ -225,29 +226,67 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; commentId: string } },
+  { params }: { params: { id: string; commentId: string } } // This is the corrected signature
 ) {
-  const { commentId } = params;
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id, commentId } = params; // Destructure id and commentId from params
+
+  if (!id || !commentId) {
+    return NextResponse.json(
+      { error: "Review ID and Comment ID are required" },
+      { status: 400 }
+    );
+  }
 
   try {
     await connectToDatabase();
 
-    const review = await Review.findByIdAndUpdate(
-      params.id,
-      { $pull: { comments: { _id: commentId } } },
-      { new: true },
-    ).select("comments");
+    const review = await Review.findById(id);
 
     if (!review) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "Comment deleted successfully" });
+    // Find the comment to be deleted
+    const commentToDelete = review.comments.id(commentId);
+
+    if (!commentToDelete) {
+        return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+    }
+
+    // Optional: Check if the user is the author of the comment
+    if (commentToDelete.userId !== user.id) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+
+    // Use $pull to remove the comment from the array
+    const result = await Review.findByIdAndUpdate(
+      id,
+      { $pull: { comments: { _id: commentId } } },
+      { new: true }
+    );
+
+    if (!result) {
+      return NextResponse.json(
+        { error: "Comment not found or already deleted" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Comment deleted successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error deleting comment:", error);
     return NextResponse.json(
       { error: "Failed to delete comment" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
