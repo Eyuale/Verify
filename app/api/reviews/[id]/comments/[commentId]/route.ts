@@ -230,14 +230,14 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string; commentId: string } }, // This is the corrected signature
+  context: { params: Promise<{ id: string; commentId: string }> }, // This is the corrected signature
 ) {
   const user = await currentUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id, commentId } = context.params; // Destructure id and commentId from params
+  const { id, commentId } = await context.params; // Destructure id and commentId from params
 
   if (!id || !commentId) {
     return NextResponse.json(
