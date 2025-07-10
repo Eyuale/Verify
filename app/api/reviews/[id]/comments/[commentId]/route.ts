@@ -66,7 +66,11 @@ export async function PATCH(
       $addToSet?: Record<string, string>;
       $pull?: Record<string, string>;
     };
-    const updateOperations: UpdateOperations = { $inc: {}, $addToSet: {}, $pull: {} };
+    const updateOperations: UpdateOperations = {
+      $inc: {},
+      $addToSet: {},
+      $pull: {},
+    };
     let hasChanges = false; // Flag to check if any update operation is actually needed
 
     // Logic for removing old action if present
@@ -226,19 +230,19 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; commentId: string } } // This is the corrected signature
+  context: { params: { id: string; commentId: string } }, // This is the corrected signature
 ) {
   const user = await currentUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id, commentId } = params; // Destructure id and commentId from params
+  const { id, commentId } = context.params; // Destructure id and commentId from params
 
   if (!id || !commentId) {
     return NextResponse.json(
       { error: "Review ID and Comment ID are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -255,38 +259,37 @@ export async function DELETE(
     const commentToDelete = review.comments.id(commentId);
 
     if (!commentToDelete) {
-        return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
     // Optional: Check if the user is the author of the comment
     if (commentToDelete.userId !== user.id) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-
 
     // Use $pull to remove the comment from the array
     const result = await Review.findByIdAndUpdate(
       id,
       { $pull: { comments: { _id: commentId } } },
-      { new: true }
+      { new: true },
     );
 
     if (!result) {
       return NextResponse.json(
         { error: "Comment not found or already deleted" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
       { message: "Comment deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error deleting comment:", error);
     return NextResponse.json(
       { error: "Failed to delete comment" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
