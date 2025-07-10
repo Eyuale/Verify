@@ -39,9 +39,9 @@ function buildCommentTree(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
-  const { id } = params;
+  const { id } = await context.params;
   try {
     await connectToDatabase();
 
@@ -71,8 +71,9 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await context.params
   const user = await currentUser();
 
   if (!user) {
@@ -94,7 +95,7 @@ export async function POST(
 
     let commentDepth = 0;
     if (parentCommentId) {
-      const review: IReview | null = await Review.findById(params.id).select("comments");
+      const review: IReview | null = await Review.findById(id).select("comments");
       if (review) {
         // CORRECTED LINE: Allow parentComment to be null
         const parentComment: IComment | undefined | null = review.comments.id(parentCommentId);
@@ -121,7 +122,7 @@ export async function POST(
     };
 
     const updatedReview: IReview | null = await Review.findByIdAndUpdate(
-      params.id,
+      id,
       { $push: { comments: newComment } },
       { new: true },
     ).select("comments");
