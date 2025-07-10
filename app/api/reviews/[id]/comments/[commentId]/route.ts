@@ -7,13 +7,13 @@ import { currentUser } from "@clerk/nextjs/server";
 // UPDATE comment (likes, accurate, inaccurate, and their removals)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; commentId: string } },
+  context: { params: Promise<{ id: string; commentId: string }> },
 ) {
-  const { commentId } = params;
+  const { id,commentId } = await context.params;
   try {
     await connectToDatabase();
     console.log(
-      `[BACKEND PATCH] Request received for reviewId: ${params.id}, commentId: ${commentId}`,
+      `[BACKEND PATCH] Request received for reviewId: ${id}, commentId: ${commentId}`,
     );
 
     const body = await request.json();
@@ -32,7 +32,7 @@ export async function PATCH(
 
     // Find the review and the specific comment
     const review = await Review.findOne({
-      _id: params.id,
+      _id: id,
       "comments._id": commentId,
     });
 
@@ -168,7 +168,7 @@ export async function PATCH(
 
     const updatedReview = await Review.findOneAndUpdate(
       {
-        _id: params.id,
+        _id: id,
         "comments._id": commentId,
       },
       updateOperations, // Use the dynamically built update operations
