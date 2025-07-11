@@ -100,7 +100,6 @@ export default function CommentSystem({
   const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(
     null,
   );
-  const [replyText, setReplyText] = useState("");
   const replyInputRef = useRef<HTMLTextAreaElement>(null);
   // Construct a temporary comment object for optimistic update
   const tempId = `temp-${Date.now()}`; // Unique temporary ID
@@ -421,7 +420,7 @@ export default function CommentSystem({
 
       // Clear input fields immediately
       if (parentCommentId) {
-        setReplyText("");
+        // setReplyText("");
         setReplyingToCommentId(null);
       } else {
         setNewCommentText("");
@@ -758,9 +757,11 @@ export default function CommentSystem({
     const userId = user?.id;
     // NEW STATE: To control replies visibility
     const [showReplies, setShowReplies] = useState(false);
+    const [replyText, setReplyText] = useState("");
 
     const hasUpvote = comment.upvoteBy.includes(userId || "");
     const hasDownvote = comment.downvoteBy.includes(userId || "");
+
 
     const handleReplyClick = () => {
       setReplyingToCommentId(comment._id);
