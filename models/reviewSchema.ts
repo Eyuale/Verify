@@ -25,7 +25,7 @@ export interface IPlainComment {
 // It extends Document, which provides Mongoose methods and its own _id definition.
 // We then use Omit<IPlainComment, '_id'> to get all fields from IPlainComment *except* _id,
 // preventing the _id conflict. The _id property on IComment will come from Document.
-export interface IComment extends Document, Omit<IPlainComment, '_id'> {
+export interface IComment extends Document, Omit<IPlainComment, "_id"> {
   // TypeScript will implicitly get _id from Document.
   // All other properties are inherited from Omit<IPlainComment, '_id'>.
   // If you need to specifically override or add properties that are part of IPlainComment,
@@ -47,6 +47,8 @@ export interface IReview extends Document {
   comments: Types.DocumentArray<IComment>; // Use DocumentArray for subdocuments
   createdAt: Date;
   updatedAt: Date; // Added by timestamps: true
+  // ADDED: Define featureRatings in the interface
+  featureRatings: Record<string, unknown>; // Using Record<string, unknown> to match Schema.Types.Mixed safely
 }
 
 const CommentSchema = new Schema<IComment>({
@@ -80,11 +82,13 @@ const ReviewSchema = new Schema<IReview>(
     accurate: { type: Number, default: 0 },
     inaccurate: { type: Number, default: 0 },
     comments: { type: [CommentSchema], required: false },
-    createdAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now }, // Dynamic answers to feature-specific questions
+    // This field will store the key-value pairs of answers (e.g., { "overall_rating": 4, "camera_quality": 5, "pros": "Great battery" })
+    featureRatings: { type: Schema.Types.Mixed, default: {} },
   },
   {
     timestamps: true,
   },
 );
 
-export const Review = (models.Review || model<IReview>("Review", ReviewSchema));
+export const Review = models.Review || model<IReview>("Review", ReviewSchema);

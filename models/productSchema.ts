@@ -1,7 +1,5 @@
 import { Schema, Types, model, models } from "mongoose";
 
-
-
 // — Product schema now includes an array of reviews
 const ProductSchema = new Schema(
   {
@@ -14,12 +12,12 @@ const ProductSchema = new Schema(
     model: { type: String, required: false }, // <-- Added model
     category: { type: String }, // <-- Added category
     userId: { type: String, required: true },
-    ai_summary: { type: String, required: false},
+    ai_summary: { type: String, required: false },
     reviews: {
       type: [Types.ObjectId],
       ref: "Review",
     },
-    webLink: { type: String, required: false }
+    webLink: { type: String, required: false },
   },
   { timestamps: true },
 );

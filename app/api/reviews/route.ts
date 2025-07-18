@@ -1,10 +1,9 @@
-// app/api/reviews/route.ts
+// app/api/reviews/route.ts (update this file)
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongoose";
-import { Review } from "@/models/reviewSchema";
-import { Product } from "@/models/productSchema";
+import { Review } from "@/models/reviewSchema"; // Make sure this path is correct
 import { getAuth } from "@clerk/nextjs/server";
-import { TReviews } from "@/lib/types";
+import { Product } from "@/models/productSchema"; // If you need to update Product with new review reference
 
 export async function POST(request: NextRequest) {
   const { userId } = getAuth(request);
@@ -17,8 +16,17 @@ export async function POST(request: NextRequest) {
 
   try {
     await connectToDatabase();
-    const body: TReviews = await request.json();
-    const { productId, rating, reviewDescription, videoUrl } = body;
+    const body = await request.json();
+    // Destructure all expected fields, including the new featureRatings
+    const { productId, rating, reviewDescription, videoUrl, featureRatings } =
+      body;
+
+    if (!productId || !rating || !reviewDescription) {
+      return NextResponse.json(
+        { success: false, error: "Missing required review fields" },
+        { status: 400 },
+      );
+    }
 
     const newReview = await Review.create({
       productId,
@@ -26,31 +34,17 @@ export async function POST(request: NextRequest) {
       rating,
       reviewDescription,
       videoUrl,
+      featureRatings, // Save the dynamic feature ratings
     });
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      { $push: { reviews: newReview._id } },
-      { new: true },
-    );
+    // Optionally, if you also want to update the Product document with the new review ID
+    await Product.findByIdAndUpdate(productId, {
+      $push: { reviews: newReview._id },
+    });
 
-    if (!updatedProduct) {
-      console.error(
-        `Product with ID ${productId} not found for review ${newReview._id}`,
-      );
-      await Review.findByIdAndDelete(newReview._id);
-      return NextResponse.json(
-        { success: false, error: "Product not found" },
-        { status: 404 },
-      );
-    }
-
-    return NextResponse.json(
-      { success: true, newReview, updatedProduct },
-      { status: 201 },
-    );
+    return NextResponse.json({ success: true, newReview }, { status: 201 });
   } catch (err: unknown) {
-    console.error("Error creating review or updating product:", err);
+    console.error("Error creating review:", err);
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : "Internal Server Error" },
       { status: 500 },
