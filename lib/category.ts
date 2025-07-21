@@ -5,6 +5,9 @@ export const categories = [
     "category": "Smartphones"
   },
   {
+    "category": "Laptops"
+  },
+  {
     "category": "Smart Home Devices"
   },
   {
